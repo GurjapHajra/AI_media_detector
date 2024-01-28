@@ -2,6 +2,10 @@
 
 .\env\Scripts\activate
 
+# get out of the virtual envirment
+
+deactivate
+
 # install all dependencies
 
 pip install -r ./Media_service/requirements.txt
