@@ -1,35 +1,15 @@
 import functions_framework
-from markupsafe import escape
+from google.cloud.storage.blob import Blob
 from google.cloud import storage
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r'Media_service\noaivi-e4f53fa15f55.json'
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r'noaivi-e4f53fa15f55.json'
 
-@functions_framework.http
-def hello_http(request):
-    """HTTP Cloud Function.
-    Args:
-        request (flask.Request): The request object.
-        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
-    Returns:
-        The response text, or any set of values that can be turned into a
-        Response object using `make_response`
-        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
-    """
-    request_json = request.get_json(silent=True)
-    return request_json
-    request_args = request.args
+main_bucket_name = "noaivi-images"
+storage_client = storage.Client()
 
-    if request_json and "name" in request_json:
-        name = request_json["name"]
-    elif request_args and "name" in request_args:
-        name = request_args["name"]
-    else:
-        name = "World"
-    return f"Hello {escape(name)}!"
-
-
-def upload_blob(source_file_name, destination_blob_name, bucket_name="noaivi-images"):
+#doesn't work
+def upload_blob(source_file_name, destination_blob_name, bucket_name=main_bucket_name):
     """Uploads a file to the bucket."""
     # The ID of your GCS bucket
     # bucket_name = "your-bucket-name"
@@ -55,3 +35,54 @@ def upload_blob(source_file_name, destination_blob_name, bucket_name="noaivi-ima
     print(
         f"File {source_file_name} uploaded to {destination_blob_name}."
     )
+
+@functions_framework.http
+def hello_http(request):
+    
+    """HTTP Cloud Function.
+    Args:
+        request (flask.Request): The request object.
+        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
+    Returns:
+        The response text, or any set of values that can be turned into a
+        Response object using `make_response`
+        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
+    """
+
+    if request.files:
+        upload_blob(request.files['ima'],'that_guy')
+        return f"uploaded!"
+    else:
+        return f"no files found!"
+
+@functions_framework.http
+def getAssetsList(request):
+    
+    args = None
+    res = []
+
+    if request.args or request.form:
+        args = request.args or request.form
+
+    if args and args.get('name'):
+        for b in storage_client.list_blobs(main_bucket_name,prefix=f"{args.get('name')}"):
+            res.append(b.name)
+        return res
+    
+    for b in (storage_client.list_blobs(main_bucket_name)):
+        res.append(b.name)
+
+    return res
+
+@functions_framework.http
+def getAssetByName(request):
+    if request.args or request.form:
+        args = request.args or request.form
+    else:
+        return ("no asset name provided", 404)
+
+    if args and args.get('name'):
+        content = Blob.from_string(f"gs://{main_bucket_name}/{args.get('name')}")
+        return content.public_url
+
+    return "no asset name provided"
