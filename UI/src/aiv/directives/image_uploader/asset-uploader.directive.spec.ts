@@ -1,8 +1,8 @@
-import { ImageUploaderDirective } from './image-uploader.directive';
+import { AssetUploaderDirective } from './asset-uploader.directive';
 
 describe('ImageUploaderDirective', () => {
   it('should create an instance', () => {
-    const directive = new ImageUploaderDirective();
+    const directive = new AssetUploaderDirective();
     expect(directive).toBeTruthy();
   });
 });

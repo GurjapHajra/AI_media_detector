@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { ImageFile } from 'src/aiv/models/image-file';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { AssetFile } from 'src/aiv/models/asset-file';
 
 @Component({
   selector: 'aiv-media-uploader',
@@ -7,9 +7,12 @@ import { ImageFile } from 'src/aiv/models/image-file';
   styleUrls: ['./media-uploader.component.scss'],
 })
 export class MediaUploaderComponent {
-  files: ImageFile[] = [];
+  files: AssetFile[] = [];
 
-  onDropFiles(files: ImageFile[]): void {
+  @Output() imageDroped = new EventEmitter<AssetFile[]>();
+
+  onDropFiles(files: AssetFile[]): void {
     this.files = [...this.files, ...files];
+    this.imageDroped.emit(this.files);
   }
 }

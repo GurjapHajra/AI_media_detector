@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { ImageUploaderDirective } from './directives/image_uploader/image-uploader.directive';
+import { AssetUploaderDirective } from './directives/image_uploader/asset-uploader.directive';
 import { MediaUploaderComponent } from './components/media-uploader/media-uploader.component';
 import { HomePageComponent } from './screens/home-page/home-page.component';
 import { UploaderComponent } from './screens/uploader/uploader.component';
@@ -11,7 +11,7 @@ import { UploaderComponent } from './screens/uploader/uploader.component';
 @NgModule({
   declarations: [
     AppComponent,
-    ImageUploaderDirective,
+    AssetUploaderDirective,
     MediaUploaderComponent,
     HomePageComponent,
     UploaderComponent,

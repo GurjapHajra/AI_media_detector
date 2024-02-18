@@ -5,16 +5,16 @@ import {
   Output,
   EventEmitter,
 } from '@angular/core';
-import { ImageFile } from '../../models/image-file';
+import { AssetFile } from '../../models/asset-file';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Directive({
   selector: '[corpImgUpload]',
 })
-export class ImageUploaderDirective {
+export class AssetUploaderDirective {
   constructor(private sanitizer: DomSanitizer) {}
 
-  @Output() dropFiles: EventEmitter<ImageFile[]> = new EventEmitter();
+  @Output() dropFiles: EventEmitter<AssetFile[]> = new EventEmitter();
   @HostBinding('style.background') backgroundColor: string = '#C6E4F1';
 
   @HostListener('dragover', ['$event']) public dragOver(event: DragEvent) {
@@ -37,7 +37,7 @@ export class ImageUploaderDirective {
     this.backgroundColor = DropColor.Default;
 
     let fileList = event.dataTransfer?.files ?? [];
-    let files: ImageFile[] = [];
+    let files: AssetFile[] = [];
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
       const url = this.sanitizer.bypassSecurityTrustUrl(
