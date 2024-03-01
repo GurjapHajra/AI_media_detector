@@ -13,10 +13,7 @@ pip install -r ./Media_service/requirements.txt
 # run a function locally with Functions Framework (must be in Media_service dir)
 
 functions-framework-python --target {function name} --debug
-<<<<<<< HEAD
 
 # run the UI
 
 ng serve
-=======
->>>>>>> main
