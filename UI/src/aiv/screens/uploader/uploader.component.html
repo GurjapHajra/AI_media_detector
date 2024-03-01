@@ -1,7 +1,7 @@
 <aiv-media-uploader (imageDroped)="assetDropped($event)"></aiv-media-uploader>
 
 <div class="grid">
-  <div *ngFor="let file of assets">
+  <div *ngFor="let file of getAsset() | async">
 
     <video *ngIf="file.file.type=='video/mp4'" width="720" height="480" controls>
       <source [src]="file.url" type="video/mp4">

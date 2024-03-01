@@ -2,4 +2,5 @@
   # add them below
   functions-framework==3.*
   markupsafe==2.1.*
-  google.cloud== 0.34.*
+  google.cloud==0.34.*
+  pillow==10.2.*
