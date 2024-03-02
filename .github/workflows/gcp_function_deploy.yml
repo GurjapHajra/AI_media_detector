@@ -1,0 +1,30 @@
+name: gcp_function_deploy
+
+on: [push]
+
+jobs:
+  job_id:
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    steps:
+      - uses: "actions/checkout@v4"
+
+      - id: "auth"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: "projects/515258955840/locations/global/workloadIdentityPools/github-actions-cloud-functionp/providers/github"
+          service_account: "cloud-function-admin@noaivi.iam.gserviceaccount.com"
+
+      - id: "deploy"
+        uses: "google-github-actions/deploy-cloud-functions@v2"
+        with:
+          name: "media_service_handler"
+          runtime: "python310"
+          entry_point: "media_service"
+
+      # Example of using the output
+      - id: "test"
+        run: 'curl "${{ steps.deploy.outputs.url }}"'
