@@ -52,7 +52,7 @@ def get_assets_list(request):
         for b in storage_client.list_blobs(MAIN_BUCKET_NAME,prefix=f"{args.get('name')}"):
             res.append(b.name)
         return res
-    
+
     for b in (storage_client.list_blobs(MAIN_BUCKET_NAME)):
         res.append(b.name)
 
