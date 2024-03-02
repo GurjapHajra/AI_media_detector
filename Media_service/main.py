@@ -3,12 +3,31 @@
 import functions_framework
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
-from werkzeug.utils import secure_filename
 
 MAIN_BUCKET_NAME = "noaivi-images"
 storage_client = storage.Client()
 
-@functions_framework
+@functions_framework.http
+def media_service_handler(request):
+    '''_Media_service_handler: the main handler for the media service
+        request: flask.Request
+        name: str - optional - the name of the asset to search for
+        asset: file - optional - the asset to upload'''
+    if request.args or request.form:
+        args = request.args or request.form
+    else:
+        return ("no asset name provided", 404)
+
+    if request.method == 'GET':
+        if args.get('type') == 'list':
+            return get_assets_list(request)
+        elif args.get('type') == 'asset':
+            return get_asset_by_name(request)
+    elif request.method == 'POST':
+        return upload_asset(request)
+    return "no valid request type found", 400
+
+@functions_framework.http
 def upload_blob(source_file_name, destination_blob_name, bucket_name=MAIN_BUCKET_NAME):
     """Uploads a file to the bucket."""
     # The ID of your GCS bucket
@@ -20,7 +39,6 @@ def upload_blob(source_file_name, destination_blob_name, bucket_name=MAIN_BUCKET
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
-    print(":::", source_file_name)
     # Optional: set a generation-match precondition to avoid potential race conditions
     # and data corruptions. The request to upload is aborted if the object's
     # generation number does not match your precondition. For a destination
@@ -83,7 +101,7 @@ def upload_asset(request):
     if request.files:
         upload_blob(request.files['asset'], request.form['name'])
         return "uploaded!"
-    return "no files found!"
+    return "no files found!", 400
 
 @functions_framework.http
 def hello_http(request):
@@ -96,14 +114,4 @@ def hello_http(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
-
-    file = request.files['asset']
-    if request.files:
-        filename = secure_filename(file.filename)
-
-        tmp_file = f'/tmp/{filename}'
-
-        file.save(tmp_file)
-
-        return "uploaded!"
-    return "no files found!"
+    return "Hello, World!"
