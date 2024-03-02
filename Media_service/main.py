@@ -1,12 +1,9 @@
 '''main.py: contains the main functions for the media service'''
 
-import os
 import functions_framework
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
 from werkzeug.utils import secure_filename
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r'noaivi-e4f53fa15f55.json'
 
 MAIN_BUCKET_NAME = "noaivi-images"
 storage_client = storage.Client()
@@ -85,9 +82,8 @@ def upload_asset(request):
         asset: file - required - the asset to upload'''
     if request.files:
         upload_blob(request.files['asset'], request.form['name'])
-        return f"uploaded!"
-    else:
-        return f"no files found!"
+        return "uploaded!"
+    return "no files found!"
 
 @functions_framework.http
 def hello_http(request):
@@ -109,6 +105,5 @@ def hello_http(request):
 
         file.save(tmp_file)
 
-        return f"uploaded!"
-    else:
-        return f"no files found!"
+        return "uploaded!"
+    return "no files found!"
