@@ -4,6 +4,7 @@ import os
 import functions_framework
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
+from werkzeug.utils import secure_filename
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r'noaivi-e4f53fa15f55.json'
 
