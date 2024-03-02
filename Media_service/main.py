@@ -21,7 +21,7 @@ def media_service_handler(request):
     if request.method == 'GET':
         if args.get('type') == 'list':
             return get_assets_list(request)
-        elif args.get('type') == 'asset':
+        if args.get('type') == 'asset':
             return get_asset_by_name(request)
     elif request.method == 'POST':
         return upload_asset(request)
