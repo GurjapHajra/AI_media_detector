@@ -1,14 +1,28 @@
 import functions_framework
 from google.cloud.storage.blob import Blob
 from google.cloud import storage
-import os
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = r'noaivi-e4f53fa15f55.json'
+from google.oauth2 import service_account
 
 main_bucket_name = "noaivi-images"
+
+service_account.Credentials.from_service_account_file("noaivi-325012-3e3e3e3e3e3e.json")
 storage_client = storage.Client()
 
-@functions_framework
+@functions_framework.http
+def hello_http(request):
+    
+    """HTTP Cloud Function.
+    Args:
+        request (flask.Request): The request object.
+        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
+    Returns:
+        The response text, or any set of values that can be turned into a
+        Response object using `make_response`
+        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
+    """
+
+    return 'Hello, World!'
+
 def upload_blob(source_file_name, destination_blob_name, bucket_name=main_bucket_name):
     """Uploads a file to the bucket."""
     # The ID of your GCS bucket
@@ -70,35 +84,8 @@ def getAssetByName(request):
 
 @functions_framework.http
 def uploadAsset(request):
-    print(request.files)
     if request.files:
-        print(":::",request.files['asset'].content_type)
         upload_blob(request.files['asset'], request.form['name'])
-        return f"uploaded!"
-    else:
-        return f"no files found!"
-
-@functions_framework.http
-def hello_http(request):
-    
-    """HTTP Cloud Function.
-    Args:
-        request (flask.Request): The request object.
-        <https://flask.palletsprojects.com/en/1.1.x/api/#incoming-request-data>
-    Returns:
-        The response text, or any set of values that can be turned into a
-        Response object using `make_response`
-        <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
-    """
-
-    file = request.files['asset']
-    if request.files:
-        filename = secure_filename(file.filename)
-
-        tmp_file = f'/tmp/{filename}'
-
-        file.save(tmp_file)
-
         return f"uploaded!"
     else:
         return f"no files found!"

@@ -17,3 +17,11 @@ functions-framework-python --target {function name} --debug
 # run the UI
 
 ng serve
+
+# local authentication for gcp
+
+gcloud auth application-default login
+
+# or
+
+gcloud auth application-default login --impersonate-service-account read-write-noaivi-bucket@noaivi.iam.gserviceaccount.com
