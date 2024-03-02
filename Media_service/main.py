@@ -114,4 +114,4 @@ def hello_http(request):
         Response object using `make_response`
         <https://flask.palletsprojects.com/en/1.1.x/api/#flask.make_response>.
     """
-    return "Hello, World!"
+    return f"Hello, World!{request.url}"
