@@ -1,3 +1,11 @@
+# ------------------------------------ UI ------------------------------------
+
+# run the UI
+
+ng serve
+
+# ------------------------------------ Google Cloud ------------------------------------
+
 # get into the virtual python envirment
 
 .\env\Scripts\activate
@@ -14,10 +22,6 @@ pip install -r ./Media_service/requirements.txt
 
 functions-framework-python --target {function name} --debug
 
-# run the UI
-
-ng serve
-
 # local authentication for gcp
 
 gcloud auth application-default login
@@ -25,3 +29,13 @@ gcloud auth application-default login
 # or
 
 gcloud auth application-default login --impersonate-service-account read-write-noaivi-bucket@noaivi.iam.gserviceaccount.com
+
+# ------------------------------------ AWS ------------------------------------
+
+# build
+
+sam build
+
+# deploy
+
+sam deploy --guided
