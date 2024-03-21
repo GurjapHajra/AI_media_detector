@@ -36,9 +36,13 @@ gcloud auth application-default login --impersonate-service-account read-write-n
 
 sam build
 
-# deploy
+# deploy initial
 
 sam deploy --guided
+
+# deploy
+
+sam deploy
 
 # run the api gateway locally
 

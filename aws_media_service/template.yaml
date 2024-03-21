@@ -31,6 +31,9 @@ Resources:
           Properties:
             Path: /
             Method: get
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref MediaServiceS3Bucket
 
   MediaServicePostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -46,6 +49,12 @@ Resources:
           Properties:
             Path: /
             Method: post
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref MediaServiceS3Bucket
+      Policies:
+        S3CrudPolicy:
+          BucketName: !Ref MediaServiceS3Bucket
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

@@ -1,8 +1,8 @@
 '''service_handler.py: contains the main functions for the media service'''
 
+import os
 import json
 import logging
-import base64
 import boto3
 from botocore.exceptions import ClientError
 
@@ -79,7 +79,10 @@ def post_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    url = upload_file(object_name="Im_like_that.png")
+    file_name = event['queryStringParameters']['file_name']
+    file_type = event['queryStringParameters']['file_type']
+
+    url = create_presigned_post(object_name=f"{file_name}{file_type}")
 
     return {
         "statusCode": 200,
@@ -88,7 +91,7 @@ def post_handler(event, context):
         }),
     }
 
-def upload_file(bucket=BUCKET_NAME, object_name=None):
+def create_presigned_post(bucket=BUCKET_NAME, object_name=None):
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -100,9 +103,7 @@ def upload_file(bucket=BUCKET_NAME, object_name=None):
     # Upload the file
     s3_client = boto3.client('s3')
 
-    return s3_client.generate_presigned_url('get_object',
-                                            Params={'Bucket': bucket,
-                                                    'Key': object_name},
+    return s3_client.generate_presigned_post(Bucket=bucket, Key=object_name,
                                             ExpiresIn=300)
 
 def get_all_files(bucket=BUCKET_NAME):
