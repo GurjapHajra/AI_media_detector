@@ -8,7 +8,7 @@ from botocore.exceptions import ClientError
 BUCKET_NAME = "media-service-737855111243-us-east-1"
 
 
-def get_handler(event):
+def get_handler(event, context):  # pylint: disable=unused-argument
     """Media Service Post Handler Lambda function
 
     :param event: dict, required
@@ -24,6 +24,7 @@ def get_handler(event):
                 "statusCode": 200,
                 "body": json.dumps(
                     {
+                        "file": f"{file_name}",
                         "url": f"{url}",
                     }
                 ),
@@ -35,13 +36,14 @@ def get_handler(event):
                 "statusCode": 200,
                 "body": json.dumps(
                     {
+                        "prefix": f"{prefix}",
                         "files": f"{files}",
                     }
                 ),
             }
 
     return {
-        "statusCode": 404,
+        "statusCode": 200,
         "body": json.dumps(
             {
                 "message": f"{get_all_files()}",
@@ -50,7 +52,7 @@ def get_handler(event):
     }
 
 
-def post_handler(event):
+def post_handler(event, context):  # pylint: disable=unused-argument
     """Media Service Post Handler Lambda function
 
     :param event: dict, required
@@ -103,7 +105,7 @@ def get_all_files(bucket=BUCKET_NAME):
         response = s3_client.list_objects_v2(Bucket=bucket)
     except ClientError as e:
         logging.error(e)
-        return None
+        return e
     return response["Contents"]
 
 
