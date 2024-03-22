@@ -20,4 +20,8 @@ export class UploaderComponent {
   getAsset(): Observable<AssetFile[]> {
     return this.store.select(assetFeature.selectFiles);
   }
+
+  upload() {
+    throw new Error('Method not implemented.');
+  }
 }
