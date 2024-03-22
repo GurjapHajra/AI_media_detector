@@ -7,6 +7,8 @@ from botocore.exceptions import ClientError
 
 BUCKET_NAME = 'media-service-737855111243-us-east-1'
 
+print(logging.__version__)
+
 def get_handler(event, context):
     """Sample pure Lambda function
 
