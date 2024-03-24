@@ -60,6 +60,19 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     :return: API Gateway Lambda Proxy Output Format: dict
     """
 
+    if not event["queryStringParameters"] or not (
+        "file_name" in event["queryStringParameters"]
+        and "file_type" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing file_type or file_name parameter",
+                }
+            ),
+        }
+
     file_name = event["queryStringParameters"]["file_name"]
     file_type = event["queryStringParameters"]["file_type"]
 

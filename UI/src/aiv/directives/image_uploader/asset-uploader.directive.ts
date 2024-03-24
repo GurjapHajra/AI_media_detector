@@ -30,8 +30,6 @@ export class AssetUploaderDirective {
   }
 
   @HostListener('drop', ['$event']) public drop(event: DragEvent) {
-    console.log(':::', event.dataTransfer?.files);
-
     event.preventDefault();
     event.stopPropagation();
     this.backgroundColor = DropColor.Default;

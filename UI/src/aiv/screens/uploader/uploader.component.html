@@ -1,14 +1,13 @@
-<div>
-  <aiv-media-uploader (imageDroped)="assetDropped($event)"></aiv-media-uploader>
-  <button (click)="upload()">Upload</button>
-  <div class="grid">
-    <div *ngFor="let file of getAsset() | async">
+<aiv-media-uploader (imageDroped)="assetDropped($event)"></aiv-media-uploader>
 
-      <video *ngIf="file.file.type=='video/mp4'" width="720" height="480" controls>
-        <source [src]="file.url" type="video/mp4">
-      </video>
+<button (click)="upload()">Upload</button>
 
-      <img *ngIf="file.file.type=='image/png'" [src]='file.url'>
-    </div>
+<div class="grid">
+  <div *ngFor="let file of getlocalAsset() | async">
+    <video *ngIf="file.file.type=='video/mp4'" width="720" height="480" controls>
+      <source [src]="file.url" type="video/mp4">
+    </video>
+
+    <img [src]='file.url'>
   </div>
 </div>
