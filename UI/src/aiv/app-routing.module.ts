@@ -21,6 +21,13 @@ const routes: Routes = [
         (m) => m.UploaderModule
       ),
   },
+  {
+    path: 'media-finder',
+    loadChildren: () =>
+      import('./screens/media-finder/media-finder.module').then(
+        (m) => m.MediaFinderModule
+      ),
+  },
 ];
 
 @NgModule({
