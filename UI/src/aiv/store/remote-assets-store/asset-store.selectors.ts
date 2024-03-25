@@ -1,9 +1,10 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { assetStoreState } from './state';
+import { remoteAssetStoreState } from './state';
 
 export const ASSET_STATE_NAME = 'asset-store';
 
-const getAssetState = createFeatureSelector<assetStoreState>(ASSET_STATE_NAME);
+const getAssetState =
+  createFeatureSelector<remoteAssetStoreState>(ASSET_STATE_NAME);
 
 export const getAllAssets = createSelector(getAssetState, (state) => {
   return state.files;
