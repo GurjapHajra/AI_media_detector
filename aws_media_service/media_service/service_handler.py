@@ -60,22 +60,38 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     :return: API Gateway Lambda Proxy Output Format: dict
     """
 
+    if not event["queryStringParameters"] or not (
+        "file_name" in event["queryStringParameters"]
+        and "file_type" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing file_type or file_name parameter",
+                }
+            ),
+        }
+
     file_name = event["queryStringParameters"]["file_name"]
     file_type = event["queryStringParameters"]["file_type"]
 
-    url = create_presigned_post(object_name=f"{file_name}{file_type}")
+    url = create_presigned_post(object_name=f"{file_name}", file_type=f"{file_type}")
 
     return {
         "statusCode": 200,
         "body": json.dumps(
             {
-                "message": f"{url}",
+                "url": f"{url.get('url')}",
+                "fields": json.dumps(url.get("fields")),
             }
         ),
     }
 
 
-def create_presigned_post(bucket=BUCKET_NAME, object_name=None):
+def create_presigned_post(
+    bucket=BUCKET_NAME, object_name=None, file_type=None
+):  # pylint: disable=unused-argument
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -88,7 +104,7 @@ def create_presigned_post(bucket=BUCKET_NAME, object_name=None):
     s3_client = boto3.client("s3")
 
     return s3_client.generate_presigned_post(
-        Bucket=bucket, Key=object_name, ExpiresIn=300
+        Bucket=bucket, Key=f"{object_name}", ExpiresIn=300
     )
 
 
