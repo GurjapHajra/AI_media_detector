@@ -21,10 +21,19 @@ export class MediaManagementService {
   uploadMedia(media: AssetFile) {
     const formData = new FormData();
 
-    return this.getPostUnsignUrl(media.file.name)
+    return this.getPostUnsignUrl(media.file.name, media.file.type)
       .pipe(take(1))
       .subscribe((res: PostUnsignUrlResponse) => {
+        formData.append('key', res.fields.key);
+        formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
+        formData.append(
+          'x-amz-security-token',
+          res.fields['x-amz-security-token']
+        );
+        formData.append('policy', res.fields.policy);
+        formData.append('signature', res.fields.signature);
         formData.append('file', media.file);
+
         return this.http.post(res.url, formData).subscribe((val) => {
           console.log(val);
         });
@@ -37,9 +46,15 @@ export class MediaManagementService {
   deleteMedia(id: string) {
     return this.http.delete(`/api/media/${id}`);
   }
-  getPostUnsignUrl(file_name: string): Observable<PostUnsignUrlResponse> {
+  getPostUnsignUrl(
+    file_name: string,
+    file_type: string
+  ): Observable<PostUnsignUrlResponse> {
     return this.http
-      .post(`${environment.url}?file_name=${file_name}`, null)
+      .post(
+        `${environment.url}?file_name=${file_name}&file_type=${file_type}`,
+        null
+      )
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
   }
 }

@@ -76,20 +76,22 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     file_name = event["queryStringParameters"]["file_name"]
     file_type = event["queryStringParameters"]["file_type"]
 
-    url = create_presigned_post(object_name=f"{file_name}", file_type=file_type)
+    url = create_presigned_post(object_name=f"{file_name}", file_type=f"{file_type}")
 
     return {
         "statusCode": 200,
         "body": json.dumps(
             {
                 "url": f"{url.get('url')}",
-                "fields": f"{url.get('fields')}",
+                "fields": json.dumps(url.get("fields")),
             }
         ),
     }
 
 
-def create_presigned_post(bucket=BUCKET_NAME, object_name=None, file_type=None):
+def create_presigned_post(
+    bucket=BUCKET_NAME, object_name=None, file_type=None
+):  # pylint: disable=unused-argument
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -102,7 +104,7 @@ def create_presigned_post(bucket=BUCKET_NAME, object_name=None, file_type=None):
     s3_client = boto3.client("s3")
 
     return s3_client.generate_presigned_post(
-        Bucket=bucket, Key=f"{object_name}/{file_type}", ExpiresIn=300
+        Bucket=bucket, Key=f"{object_name}", ExpiresIn=300
     )
 
 
