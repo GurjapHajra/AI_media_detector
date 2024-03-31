@@ -8,7 +8,7 @@ describe('MediaFinderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MediaFinderComponent]
+      declarations: [MediaFinderComponent]
     })
     .compileComponents();
     

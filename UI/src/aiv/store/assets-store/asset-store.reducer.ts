@@ -18,6 +18,6 @@ export function assetReducer(state: assetStoreState, action: Action) {
 }
 
 export const assetFeature = createFeature({
-  name: 'assetFeatureKey',
+  name: 'AssetStoreState',
   reducer: _reducer,
 });

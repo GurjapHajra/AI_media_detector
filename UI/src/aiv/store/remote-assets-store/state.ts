@@ -1,11 +1,11 @@
-import { AssetFile } from 'src/aiv/models/asset-file';
+import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
 
 export interface remoteAssetStoreState {
-  files: AssetFile[];
+  Listfiles: GetMediaListResponse[];
   length: number;
 }
 
 export const initialState: remoteAssetStoreState = {
-  files: [],
+  Listfiles: [],
   length: 0,
 };

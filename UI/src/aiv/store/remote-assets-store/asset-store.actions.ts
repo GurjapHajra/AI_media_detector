@@ -1,13 +1,13 @@
+import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
 import { createAction, props } from '@ngrx/store';
-import { AssetFile } from 'src/aiv/models/asset-file';
 
-export const addAsset = createAction(
-  '[Asset Store] Add Asset',
-  props<{ assets: AssetFile[] }>()
+export const addListAssets = createAction(
+  '[Remote Asset Store] addListAssets',
+  props<{ ListAssets: GetMediaListResponse[] }>()
 );
 
 export const removeAsset = createAction(
-  '[Asset Store] Remove Asset',
+  '[Remote Asset Store] Remove Asset',
   props<{ assetName: string }>()
 );
 

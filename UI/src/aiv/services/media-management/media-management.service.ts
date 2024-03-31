@@ -3,7 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
 import { Observable, map, take } from 'rxjs';
-import { PostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
+import {
+  FlattenToGetMediaListResponse,
+  GetMediaListResponse,
+  PostUnsignUrlResponse,
+} from '@aiv/models/api-reponse-types';
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
 
 @Injectable({
@@ -40,12 +44,23 @@ export class MediaManagementService {
       });
   }
 
-  getMedia() {
-    return this.http.get('/api/media');
+  getMedia(): Observable<GetMediaListResponse[]> {
+    return this.http.get(`${environment.url}`).pipe(
+      map((res: any) => {
+        res = JSON.parse(res['message']);
+        res = res.reduce((acc: any, ele: any) => {
+          acc.push(FlattenToGetMediaListResponse(ele));
+          return acc;
+        }, []);
+        return res;
+      })
+    );
   }
+
   deleteMedia(id: string) {
     return this.http.delete(`/api/media/${id}`);
   }
+
   getPostUnsignUrl(
     file_name: string,
     file_type: string

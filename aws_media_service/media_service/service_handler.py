@@ -42,11 +42,14 @@ def get_handler(event, context):  # pylint: disable=unused-argument
                 ),
             }
 
+    res = get_all_files()
+    for ele in res:
+        ele["LastModified"] = f"{ele.get('LastModified').isoformat()}"
     return {
         "statusCode": 200,
         "body": json.dumps(
             {
-                "message": f"{get_all_files()}",
+                "message": json.dumps(res),
             }
         ),
     }
