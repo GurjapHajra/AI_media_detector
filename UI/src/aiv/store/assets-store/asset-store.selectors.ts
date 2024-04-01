@@ -1,7 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { assetStoreState } from './state';
 
-export const ASSET_STATE_NAME = 'asset-store';
+export const ASSET_STATE_NAME = 'AssetStoreState';
 
 const getAssetState = createFeatureSelector<assetStoreState>(ASSET_STATE_NAME);
 

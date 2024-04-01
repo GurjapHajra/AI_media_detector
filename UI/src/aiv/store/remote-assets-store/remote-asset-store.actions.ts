@@ -11,4 +11,4 @@ export const removeAsset = createAction(
   props<{ assetName: string }>()
 );
 
-export const reset = createAction('[Asset Store] Reset');
+export const reset = createAction('[Remote Asset Store] Reset');

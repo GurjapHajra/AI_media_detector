@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
-import { addListAssets } from '@aiv/store/remote-assets-store/asset-store.actions';
-import { getListAssets } from '@aiv/store/remote-assets-store/asset-store.selectors';
+import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
+import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
+import { map, take } from 'rxjs';
 
 @Component({
   selector: 'app-media-finder',
@@ -10,16 +11,37 @@ import { getListAssets } from '@aiv/store/remote-assets-store/asset-store.select
   styleUrl: './media-finder.component.scss',
 })
 export class MediaFinderComponent {
-  protected searchResult = this.store.select(getListAssets) ?? [];
+  protected searchResult = this.store.select(getListAssets).pipe(
+    map((assets) => {
+      return assets.map((item) => {
+        let date = new Date(item.LastModified).toLocaleDateString();
 
-  displayedColumns: string[] = ['name'];
+        return {
+          name: item.key,
+          size: item.Size,
+          LastModified: date,
+        };
+      });
+    })
+  );
+
+  displayedColumns: string[] = ['name', 'size', 'LastModified'];
+
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
   ) {}
+
   protected searched() {
     this.MediaManagementService.getMedia().subscribe((res) => {
       this.store.dispatch(addListAssets({ ListAssets: res }));
+    });
+  }
+
+  protected openImage(key: string) {
+    this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
+      take(1);
+      window.open(res.url, '_blank');
     });
   }
 }

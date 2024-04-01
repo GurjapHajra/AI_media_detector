@@ -21,4 +21,19 @@
     border-radius: 5px;
     cursor: pointer;
   }
+  
+  table {
+    width: fit-content;
+  }
+
+  .mdc-data-table__table {
+    margin: 10px;
+    min-width: fit-content;
+  }
+
+  .clickable {
+    cursor: pointer;
+    color: rgb(255, 0, 255);
+  }
+
 }

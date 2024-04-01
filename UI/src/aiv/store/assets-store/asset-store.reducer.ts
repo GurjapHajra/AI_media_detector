@@ -1,6 +1,7 @@
 import { Action, createFeature, createReducer, on } from '@ngrx/store';
 import { addAsset, removeAsset, reset } from './asset-store.actions';
 import { assetStoreState, initialState } from './state';
+import { ASSET_STATE_NAME } from './asset-store.selectors';
 
 const _reducer = createReducer(
   initialState,
@@ -18,6 +19,6 @@ export function assetReducer(state: assetStoreState, action: Action) {
 }
 
 export const assetFeature = createFeature({
-  name: 'AssetStoreState',
+  name: ASSET_STATE_NAME,
   reducer: _reducer,
 });

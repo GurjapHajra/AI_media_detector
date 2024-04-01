@@ -72,4 +72,12 @@ export class MediaManagementService {
       )
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
   }
+
+  getMediaUrl(key: string): Observable<{ url: string }> {
+    return this.http.get(`${environment.url}?file_name=${key}`).pipe(
+      map((res: any) => {
+        return { url: res['url'] };
+      })
+    );
+  }
 }

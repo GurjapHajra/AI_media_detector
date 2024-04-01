@@ -1,6 +1,7 @@
 import { Action, createFeature, createReducer, on } from '@ngrx/store';
-import { addListAssets, removeAsset, reset } from './asset-store.actions';
+import { addListAssets, reset } from './remote-asset-store.actions';
 import { remoteAssetStoreState, initialState } from './state';
+import { ASSET_STATE_NAME } from './remote-asset-store.selectors';
 
 const _reducer = createReducer(
   initialState,
@@ -20,6 +21,6 @@ export function remoteAssetReducer(
 }
 
 export const remoteAssetFeature = createFeature({
-  name: 'remoteAssetStoreState',
+  name: ASSET_STATE_NAME,
   reducer: _reducer,
 });
