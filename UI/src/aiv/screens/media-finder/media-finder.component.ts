@@ -11,6 +11,8 @@ import { map, take } from 'rxjs';
   styleUrl: './media-finder.component.scss',
 })
 export class MediaFinderComponent {
+  protected picUrl: string = '';
+
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
       return assets.map((item) => {
@@ -41,7 +43,7 @@ export class MediaFinderComponent {
   protected openImage(key: string) {
     this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
       take(1);
-      window.open(res.url, '_blank');
+      this.picUrl = res.url;
     });
   }
 }

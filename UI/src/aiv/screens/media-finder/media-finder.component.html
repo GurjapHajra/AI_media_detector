@@ -30,3 +30,7 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
 </ng-container>
+
+<ng-container *ngIf="picUrl">
+  <img [src]="picUrl" alt="Image" />
+</ng-container>
