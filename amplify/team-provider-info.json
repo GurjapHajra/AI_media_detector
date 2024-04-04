@@ -1,15 +1,20 @@
 {
   "dev": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-aimediadetector-dev-38d3c-authRole",
-      "UnauthRoleArn": "arn:aws:iam::737855111243:role/amplify-aimediadetector-dev-38d3c-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::737855111243:role/amplify-aimediadetector-dev-38d3c-authRole",
+      "AuthRoleName": "amplify-aimediadetector-dev-fc79f-authRole",
+      "UnauthRoleArn": "arn:aws:iam::737855111243:role/amplify-aimediadetector-dev-fc79f-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::737855111243:role/amplify-aimediadetector-dev-fc79f-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-aimediadetector-dev-38d3c-deployment",
-      "UnauthRoleName": "amplify-aimediadetector-dev-38d3c-unauthRole",
-      "StackName": "amplify-aimediadetector-dev-38d3c",
-      "StackId": "arn:aws:cloudformation:us-east-1:737855111243:stack/amplify-aimediadetector-dev-38d3c/28aecc10-f200-11ee-a8ce-12b25614341f",
-      "AmplifyAppId": "d25y4xzeljca7e"
+      "DeploymentBucketName": "amplify-aimediadetector-dev-fc79f-deployment",
+      "UnauthRoleName": "amplify-aimediadetector-dev-fc79f-unauthRole",
+      "StackName": "amplify-aimediadetector-dev-fc79f",
+      "StackId": "arn:aws:cloudformation:us-east-1:737855111243:stack/amplify-aimediadetector-dev-fc79f/74629f50-f206-11ee-8816-1220e7af4c95",
+      "AmplifyAppId": "d112a7o6f7iyup"
+    },
+    "categories": {
+      "auth": {
+        "aimediadetectorc7dff528": {}
+      }
     }
   }
 }

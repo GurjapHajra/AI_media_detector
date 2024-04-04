@@ -11,6 +11,7 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 
 @NgModule({
   declarations: [
@@ -21,6 +22,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     UploaderComponent,
   ],
   imports: [
+    AmplifyAuthenticatorModule,
     AppRoutingModule,
     BrowserModule,
     HttpClientModule,

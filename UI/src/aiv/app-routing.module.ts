@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomePageComponent } from './screens/home-page/home-page.component';
+import { LoginModule } from './screens/login/login.module';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomePageComponent,
+    component: LoginModule,
   },
   {
     path: 'home-page',
@@ -34,6 +35,11 @@ const routes: Routes = [
       import('./screens/media-finder/media-finder.module').then(
         (m) => m.MediaFinderModule
       ),
+  },
+  {
+    path: 'login',
+    loadChildren: () =>
+      import('./screens/login/login.module').then((m) => m.LoginModule),
   },
 ];
 
