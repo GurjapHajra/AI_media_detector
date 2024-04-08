@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomePageComponent } from './screens/home-page/home-page.component';
-import { LoginModule } from './screens/login/login.module';
 
 const routes: Routes = [
   {
     path: '',
-    component: LoginModule,
+    component: HomePageComponent,
   },
   {
     path: 'home-page',
@@ -20,13 +19,6 @@ const routes: Routes = [
     loadChildren: () =>
       import('./screens/uploader/uploader.module').then(
         (m) => m.UploaderModule
-      ),
-  },
-  {
-    path: 'media-finder',
-    loadChildren: () =>
-      import('./screens/media-finder/media-finder.module').then(
-        (m) => m.MediaFinderModule
       ),
   },
   {

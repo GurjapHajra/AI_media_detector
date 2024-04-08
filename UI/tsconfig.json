@@ -26,6 +26,7 @@
       "dom"
     ],
     "paths": {
+      "@angular/*": ["./node_modules/@angular/*"],
       "@aiv/*": ["src/aiv/*"]
     }
   },
