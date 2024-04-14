@@ -30,6 +30,7 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/@aws-amplify/ui-angular/theme.css",
               "@angular/material/prebuilt-themes/purple-green.css",
               "src/styles.scss"
             ],

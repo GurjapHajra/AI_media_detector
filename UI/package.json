@@ -20,8 +20,10 @@
     "@angular/platform-browser": "^17.2.1",
     "@angular/platform-browser-dynamic": "^17.2.1",
     "@angular/router": "^17.2.1",
+    "@aws-amplify/ui-angular": "^5.0.13",
     "@ngrx/store": "^17.1.0",
     "@ngrx/store-devtools": "^17.1.1",
+    "aws-amplify": "^6.0.28",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.4"
