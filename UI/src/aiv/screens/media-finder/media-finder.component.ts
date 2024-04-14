@@ -20,7 +20,7 @@ export class MediaFinderComponent {
 
         return {
           name: item.key,
-          size: item.Size,
+          size: Math.round(item.Size / 10) / 100,
           LastModified: date,
         };
       });

@@ -8,9 +8,12 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
+import { HeaderComponent } from './components/header/header.component';
 
 @NgModule({
   declarations: [AppComponent],
+  providers: [provideAnimationsAsync()],
+  bootstrap: [AppComponent],
   imports: [
     AppRoutingModule,
     BrowserModule,
@@ -25,8 +28,7 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
       traceLimit: 75, // maximum stack trace frames to be stored (in case trace option was provided as true)
       connectInZone: true, // If set to true, the connection is established within the Angular zone
     }),
+    HeaderComponent,
   ],
-  providers: [provideAnimationsAsync()],
-  bootstrap: [AppComponent],
 })
 export class AppModule {}

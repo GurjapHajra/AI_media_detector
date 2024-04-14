@@ -7,7 +7,7 @@ import { Observable, take } from 'rxjs';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 
 @Component({
-  selector: 'app-uploader',
+  selector: 'aiv-uploader',
   templateUrl: './uploader.component.html',
   styleUrl: './uploader.component.scss',
 })

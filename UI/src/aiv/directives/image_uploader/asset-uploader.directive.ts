@@ -50,6 +50,6 @@ export class AssetUploaderDirective {
 }
 
 enum DropColor {
-  Default = '#C6E4F1',
-  Over = '#ACADAD',
+  Default = '#69F0AE',
+  Over = '#00E676',
 }

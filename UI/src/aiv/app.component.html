@@ -1,6 +1,8 @@
 <amplify-authenticator>
   <ng-template amplifySlot="authenticated" let-user="user" let-signOut="signOut">
-    <button (click)="signOut()">Sign Out</button>
-    <router-outlet></router-outlet>
+    <div class="root">
+      <aiv-header (signout)="signOut()"></aiv-header>
+      <router-outlet></router-outlet>
+    </div>
   </ng-template>
 </amplify-authenticator>

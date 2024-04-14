@@ -8,6 +8,7 @@ import { MediaUploaderComponent } from '@aiv/components/media-uploader/media-upl
 import { StoreModule } from '@ngrx/store';
 import { assetFeature } from '@aiv/store/assets-store/asset-store.reducer';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
   imports: [
     CommonModule,
     UploaderRoutingModule,
+    MatButtonModule,
     StoreModule.forFeature(assetFeature.name, assetFeature.reducer),
   ],
   providers: [MediaManagementService],
