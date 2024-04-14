@@ -7,9 +7,9 @@ import { Observable, take } from 'rxjs';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 
 @Component({
-  selector: 'aiv-uploader',
+  selector: 'app-uploader',
   templateUrl: './uploader.component.html',
-  styleUrls: ['./uploader.component.scss'],
+  styleUrl: './uploader.component.scss',
 })
 export class UploaderComponent {
   constructor(

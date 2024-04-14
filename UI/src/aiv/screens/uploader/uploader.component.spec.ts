@@ -6,10 +6,12 @@ describe('UploaderComponent', () => {
   let component: UploaderComponent;
   let fixture: ComponentFixture<UploaderComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
       declarations: [UploaderComponent]
-    });
+    })
+    .compileComponents();
+    
     fixture = TestBed.createComponent(UploaderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

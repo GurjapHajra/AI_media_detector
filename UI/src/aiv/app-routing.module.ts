@@ -30,6 +30,7 @@ const routes: Routes = [
         (m) => m.MediaFinderModule
       ),
   },
+  { path: 'uploader', loadChildren: () => import('./screens/uploader/uploader.module').then(m => m.UploaderModule) },
 ];
 
 @NgModule({

@@ -3,9 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AssetUploaderDirective } from './directives/image_uploader/asset-uploader.directive';
-import { MediaUploaderComponent } from './components/media-uploader/media-uploader.component';
-import { UploaderComponent } from './screens/uploader/uploader.component';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { HttpClientModule } from '@angular/common/http';
@@ -13,12 +10,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    AssetUploaderDirective,
-    MediaUploaderComponent,
-    UploaderComponent,
-  ],
+  declarations: [AppComponent],
   imports: [
     AppRoutingModule,
     BrowserModule,
