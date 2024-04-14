@@ -15,7 +15,7 @@ export class AssetUploaderDirective {
   constructor(private sanitizer: DomSanitizer) {}
 
   @Output() dropFiles: EventEmitter<AssetFile[]> = new EventEmitter();
-  @HostBinding('style.background') backgroundColor: string = '#C6E4F1';
+  @HostBinding('style.background') backgroundColor: string = DropColor.Default;
 
   @HostListener('dragover', ['$event']) public dragOver(event: DragEvent) {
     event.preventDefault();
