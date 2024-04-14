@@ -1,18 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomePageComponent } from './screens/home-page/home-page.component';
+import { HomeComponent } from './screens/home/home.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: HomePageComponent,
-  },
-  {
-    path: 'home-page',
+    component: HomeComponent,
     loadChildren: () =>
-      import('./screens/home-page/home-page.module').then(
-        (m) => m.HomePageModule
-      ),
+      import('./screens/home/home.module').then((m) => m.HomeModule),
   },
   {
     path: 'uploader',

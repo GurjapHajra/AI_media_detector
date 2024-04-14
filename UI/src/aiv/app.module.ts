@@ -5,7 +5,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AssetUploaderDirective } from './directives/image_uploader/asset-uploader.directive';
 import { MediaUploaderComponent } from './components/media-uploader/media-uploader.component';
-import { HomePageComponent } from './screens/home-page/home-page.component';
 import { UploaderComponent } from './screens/uploader/uploader.component';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -18,7 +17,6 @@ import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
     AppComponent,
     AssetUploaderDirective,
     MediaUploaderComponent,
-    HomePageComponent,
     UploaderComponent,
   ],
   imports: [
