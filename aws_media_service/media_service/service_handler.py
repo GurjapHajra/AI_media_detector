@@ -28,6 +28,11 @@ def get_handler(event, context):  # pylint: disable=unused-argument
                         "url": f"{url}",
                     }
                 ),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                },
             }
         if "prefix" in event["queryStringParameters"]:
             prefix = event["queryStringParameters"]["prefix"]
@@ -40,6 +45,11 @@ def get_handler(event, context):  # pylint: disable=unused-argument
                         "files": f"{files}",
                     }
                 ),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                },
             }
 
     res = get_all_files()
@@ -52,6 +62,11 @@ def get_handler(event, context):  # pylint: disable=unused-argument
                 "message": json.dumps(res),
             }
         ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
     }
 
 
@@ -89,6 +104,11 @@ def post_handler(event, context):  # pylint: disable=unused-argument
                 "fields": json.dumps(url.get("fields")),
             }
         ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
     }
 
 
