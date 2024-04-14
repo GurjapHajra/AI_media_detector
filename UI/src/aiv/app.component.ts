@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -7,5 +6,8 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
+  title = 'NoAiVi';
+  loading = false;
+
   constructor() {}
 }
