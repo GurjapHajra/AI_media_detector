@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, SecurityContext } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { map, take } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-media-finder',
@@ -27,7 +29,13 @@ export class MediaFinderComponent {
     })
   );
 
-  displayedColumns: string[] = ['name', 'size', 'LastModified'];
+  displayedColumns: string[] = [
+    'name',
+    'size',
+    'LastModified',
+    'view',
+    'verify',
+  ];
 
   constructor(
     private store: Store,
@@ -44,6 +52,12 @@ export class MediaFinderComponent {
     this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
       take(1);
       this.picUrl = res.url;
+    });
+  }
+
+  protected verify(name: any) {
+    this.MediaManagementService.getAssetFile(name).subscribe((res) => {
+      this.picUrl = res;
     });
   }
 }
