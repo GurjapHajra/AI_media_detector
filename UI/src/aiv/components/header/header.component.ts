@@ -12,9 +12,15 @@ import { Router } from '@angular/router';
 export class HeaderComponent {
   @Output() signout = new EventEmitter<void>();
 
-  constructor(private router: Router) {}
+
+  constructor(private router: Router) { }
 
   onHomeClick() {
     this.router.navigate(['/']);
+  }
+
+  createAccount() {
+    console.log("clicked")
+    this.router.navigate(["/sgin-up"]);
   }
 }
