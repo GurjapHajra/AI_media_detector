@@ -15,7 +15,6 @@ import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
 })
 export class MediaManagementService {
   private showCreate: boolean = false;
-  private myBooleanValue!: boolean;
   private buttonClicked: boolean = false;
 
   constructor(private http: HttpClient) { }
