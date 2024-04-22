@@ -14,7 +14,11 @@ import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
   providedIn: 'root',
 })
 export class MediaManagementService {
-  constructor(private http: HttpClient) {}
+  private showCreate: boolean = false;
+  private myBooleanValue!: boolean;
+  private buttonClicked: boolean = false;
+
+  constructor(private http: HttpClient) { }
 
   uploadMediaFiles(assets: AssetFile[]) {
     assets.forEach((asset) => {
@@ -80,4 +84,17 @@ export class MediaManagementService {
       })
     );
   }
+
+  setShowCreateValue(value: boolean) {
+    this.showCreate = value;
+    this.buttonClicked = true;
+  }
+
+  getShowCreateValue(): boolean {
+    return this.showCreate;
+  }
+  isButtonClicked(): boolean {
+    return this.buttonClicked;
+  }
+
 }
