@@ -100,4 +100,37 @@ export class MediaManagementService {
       })
     );
   }
+
+  mergeImages(image1: string, image2: string): Observable<string> {
+    const canvas = document.createElement('canvas');
+    return new Observable<string>((observer) => {
+      if (canvas !== undefined) {
+        const ctx = canvas.getContext('2d');
+        const img1 = new Image();
+        const img2 = new Image();
+
+        img1.onload = () => {
+          canvas.width = img1.width;
+          canvas.height = img1.height;
+          img2.setAttribute('crossorigin', 'anonymous');
+          img2.src = image2;
+        };
+        img2.onload = () => {
+          ctx?.drawImage(img1, 0, 0);
+          ctx?.drawImage(
+            img2,
+            img1.width - img2.width / 4 - 10,
+            0,
+            img2.width / 4,
+            img2.height / 4
+          );
+          observer.next(canvas.toDataURL());
+        };
+        img1.setAttribute('crossorigin', 'anonymous');
+        img1.src = image1;
+      } else {
+        return observer.next('unable to load');
+      }
+    });
+  }
 }

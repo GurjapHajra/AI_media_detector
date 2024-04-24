@@ -1,11 +1,9 @@
-import { Component, SecurityContext } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { map, take } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
-import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-media-finder',
@@ -57,6 +55,15 @@ export class MediaFinderComponent {
 
   protected verify(name: any) {
     this.MediaManagementService.getAssetFile(name).subscribe((res) => {
+      this.mergeImages(res);
+    });
+  }
+
+  protected mergeImages(url: string) {
+    this.MediaManagementService.mergeImages(
+      url,
+      'https://cdn-icons-png.flaticon.com/512/3308/3308395.png'
+    ).subscribe((res) => {
       this.picUrl = res;
     });
   }
