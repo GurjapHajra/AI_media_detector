@@ -119,10 +119,10 @@ export class MediaManagementService {
           ctx?.drawImage(img1, 0, 0);
           ctx?.drawImage(
             img2,
-            img1.width - img2.width / 4 - 10,
-            0,
-            img2.width / 4,
-            img2.height / 4
+            img1.width - img2.width - 10,
+            10,
+            img2.width,
+            img2.height
           );
           observer.next(canvas.toDataURL());
         };

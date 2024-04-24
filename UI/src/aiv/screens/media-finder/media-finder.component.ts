@@ -4,6 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { map, take } from 'rxjs';
+import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-media-finder',
@@ -60,11 +61,16 @@ export class MediaFinderComponent {
   }
 
   protected mergeImages(url: string) {
-    this.MediaManagementService.mergeImages(
-      url,
-      'https://cdn-icons-png.flaticon.com/512/3308/3308395.png'
-    ).subscribe((res) => {
-      this.picUrl = res;
+    QRCode.toDataURL('flaticon.com/123456789012=jlj;', {
+      margin: 1,
+      color: {
+        dark: '#6A1B9A',
+        light: '#69F0AE',
+      },
+    }).then((qrUrl) => {
+      this.MediaManagementService.mergeImages(url, qrUrl).subscribe((res) => {
+        this.picUrl = res;
+      });
     });
   }
 }
