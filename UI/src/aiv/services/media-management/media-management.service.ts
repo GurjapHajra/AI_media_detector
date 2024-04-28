@@ -11,6 +11,8 @@ import {
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
 import { DomSanitizer } from '@angular/platform-browser';
 
+import { md5 } from 'js-md5';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -132,5 +134,9 @@ export class MediaManagementService {
         return observer.next('unable to load');
       }
     });
+  }
+
+  generateHash(file: string): Observable<string> {
+    return this.fetchImageAsBase64(file).pipe(map((res) => md5.base64(res)));
   }
 }

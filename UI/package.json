@@ -25,6 +25,7 @@
     "@ngrx/store-devtools": "^17.1.1",
     "@types/node": "^20.12.7",
     "aws-amplify": "^6.0.28",
+    "js-md5": "^0.8.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.4"
