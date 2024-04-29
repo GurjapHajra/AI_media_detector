@@ -33,21 +33,29 @@ export function FlattenToPostUnsignUrlResponseFields(
 }
 
 export interface GetMediaListResponse {
-  key: string;
-  LastModified: string;
-  ETag: string;
-  Size: number;
-  StorageClass: string;
+  asset_id: string;
+  asset_name: string;
+  asset_type: string;
+  asset_size: number;
+  upvotes: number;
+  downvotes: number;
+  p_hash: string;
+  verified: boolean;
+  last_modified: string;
 }
 
 export function FlattenToGetMediaListResponse(
   object: any
 ): GetMediaListResponse {
   return {
-    key: object['Key'],
-    LastModified: object['LastModified'],
-    ETag: object['ETag'],
-    Size: object['Size'],
-    StorageClass: object['StorageClass'],
+    asset_id: object['asset_id']['S'],
+    asset_name: object['asset_name']['S'],
+    asset_type: object['asset_type']['S'],
+    asset_size: object['asset_size']['N'],
+    upvotes: object['upvotes']['N'],
+    downvotes: object['downvotes']['N'],
+    p_hash: object['p_hash']['S'],
+    verified: object['verified']['BOOL'],
+    last_modified: object['last_modified']['S'],
   };
 }

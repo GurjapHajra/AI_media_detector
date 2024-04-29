@@ -4,6 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { map, take } from 'rxjs';
+import * as QRCode from 'qrcode';
 
 @Component({
   selector: 'app-media-finder',
@@ -12,22 +13,29 @@ import { map, take } from 'rxjs';
 })
 export class MediaFinderComponent {
   protected picUrl: string = '';
+  protected filter: string = '';
 
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
       return assets.map((item) => {
-        let date = new Date(item.LastModified).toLocaleDateString();
+        let date = new Date(item.last_modified).toLocaleDateString();
 
         return {
-          name: item.key,
-          size: Math.round(item.Size / 10) / 100,
+          name: item.asset_name,
+          size: Math.round(item.asset_size / 10) / 100,
           LastModified: date,
         };
       });
     })
   );
 
-  displayedColumns: string[] = ['name', 'size', 'LastModified'];
+  displayedColumns: string[] = [
+    'name',
+    'size',
+    'LastModified',
+    'view',
+    'verify',
+  ];
 
   constructor(
     private store: Store,
@@ -35,7 +43,7 @@ export class MediaFinderComponent {
   ) {}
 
   protected searched() {
-    this.MediaManagementService.getMedia().subscribe((res) => {
+    this.MediaManagementService.getMedia(this.filter).subscribe((res) => {
       this.store.dispatch(addListAssets({ ListAssets: res }));
     });
   }
@@ -44,6 +52,26 @@ export class MediaFinderComponent {
     this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
       take(1);
       this.picUrl = res.url;
+    });
+  }
+
+  protected verify(name: any) {
+    this.MediaManagementService.getAssetFile(name).subscribe((res) => {
+      this.mergeImages(res);
+    });
+  }
+
+  protected mergeImages(url: string) {
+    QRCode.toDataURL('flaticon.com/123456789012=jlj;', {
+      margin: 1,
+      color: {
+        dark: '#6A1B9A',
+        light: '#69F0AE',
+      },
+    }).then((qrUrl) => {
+      this.MediaManagementService.mergeImages(url, qrUrl).subscribe((res) => {
+        this.picUrl = res;
+      });
     });
   }
 }
