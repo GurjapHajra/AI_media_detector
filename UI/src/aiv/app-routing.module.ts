@@ -1,8 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './screens/home/home.component';
-import { AppComponent } from './app.component';
-import { SginUpComponent } from './components/sgin-up/sgin-up.component';
 
 const routes: Routes = [
   {
@@ -10,10 +8,6 @@ const routes: Routes = [
     component: HomeComponent,
     loadChildren: () =>
       import('./screens/home/home.module').then((m) => m.HomeModule),
-  },
-  {
-    path: 'sgin-up',
-    component: SginUpComponent
   },
   {
     path: 'uploader',
@@ -36,11 +30,22 @@ const routes: Routes = [
         (m) => m.MediaFinderModule
       ),
   },
-  { path: 'uploader', loadChildren: () => import('./screens/uploader/uploader.module').then(m => m.UploaderModule) },
+  {
+    path: 'uploader',
+    loadChildren: () =>
+      import('./screens/uploader/uploader.module').then(
+        (m) => m.UploaderModule
+      ),
+  },
+  {
+    path: 'sign-up',
+    loadChildren: () =>
+      import('./screens/sign-up/sign-up.module').then((m) => m.SignUpModule),
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

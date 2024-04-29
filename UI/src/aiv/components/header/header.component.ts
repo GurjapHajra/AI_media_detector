@@ -2,7 +2,6 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'aiv-header',
   standalone: true,
@@ -13,14 +12,13 @@ import { Router } from '@angular/router';
 export class HeaderComponent {
   @Output() signout = new EventEmitter<void>();
 
-
-  constructor(private router: Router) { }
+  constructor(private router: Router) {}
 
   onHomeClick() {
     this.router.navigate(['/']);
   }
 
   createAccount() {
-    this.router.navigate(["/sgin-up"]);
+    this.router.navigate(['/sign-up']);
   }
 }

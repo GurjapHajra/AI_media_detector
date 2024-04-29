@@ -10,7 +10,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 import { HeaderComponent } from './components/header/header.component';
-import { SginUpComponent } from './components/sgin-up/sgin-up.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -18,8 +17,6 @@ import { SginUpComponent } from './components/sgin-up/sgin-up.component';
   bootstrap: [AppComponent],
   imports: [
     AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
     BrowserModule,
     HttpClientModule,
     StoreModule.forRoot({}),
@@ -33,7 +30,6 @@ import { SginUpComponent } from './components/sgin-up/sgin-up.component';
       connectInZone: true, // If set to true, the connection is established within the Angular zone
     }),
     HeaderComponent,
-    SginUpComponent
-  ]
+  ],
 })
-export class AppModule { }
+export class AppModule {}
