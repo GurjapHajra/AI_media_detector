@@ -16,6 +16,17 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "media-service-${AWS::AccountId}-${AWS::Region}"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+            AllowedOrigins:
+              - "*"
 
   MediaServiceGetFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -35,6 +46,24 @@ Resources:
         S3CrudPolicy:
           BucketName: !Ref MediaServiceS3Bucket
 
+  MediaServiceDBGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.db_get_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+
   MediaServicePostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -47,11 +76,59 @@ Resources:
         MyEvent:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /
+            Path: /upload
             Method: post
       Policies:
         S3CrudPolicy:
           BucketName: !Ref MediaServiceS3Bucket
+
+  MediaServiceDBFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.db_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+        - S3CrudPolicy:
+            BucketName: !Ref MediaServiceS3Bucket
+
+  MediaServiceDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MediaServiceAssets
+      AttributeDefinitions:
+        - AttributeName: asset_id
+          AttributeType: S
+        - AttributeName: asset_name
+          AttributeType: S
+        # - AttributeName: asset_type
+        #   AttributeType: S
+        # - AttributeName: verified
+        #   AttributeType: B
+        # - AttributeName: upvotes
+        #   AttributeType: N
+        # - AttributeName: downvotes
+        #   AttributeType: N
+        # - AttributeName: p_hash
+        #   AttributeType: S
+      KeySchema:
+        - AttributeName: asset_id
+          KeyType: HASH
+        - AttributeName: asset_name
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -69,3 +146,6 @@ Outputs:
   MediaServiceS3Bucket:
     Description: "MediaServiceS3Bucket"
     Value: !Ref MediaServiceS3Bucket
+  MediaServiceDynamoDBTable:
+    Description: "MediaServiceDynamoDBTable"
+    Value: !Ref MediaServiceDynamoDBTable
