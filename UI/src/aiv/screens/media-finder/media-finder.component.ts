@@ -13,15 +13,16 @@ import * as QRCode from 'qrcode';
 })
 export class MediaFinderComponent {
   protected picUrl: string = '';
+  protected filter: string = '';
 
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
       return assets.map((item) => {
-        let date = new Date(item.LastModified).toLocaleDateString();
+        let date = new Date(item.last_modified).toLocaleDateString();
 
         return {
-          name: item.key,
-          size: Math.round(item.Size / 10) / 100,
+          name: item.asset_name,
+          size: Math.round(item.asset_size / 10) / 100,
           LastModified: date,
         };
       });
@@ -42,7 +43,7 @@ export class MediaFinderComponent {
   ) {}
 
   protected searched() {
-    this.MediaManagementService.getMedia().subscribe((res) => {
+    this.MediaManagementService.getMedia(this.filter).subscribe((res) => {
       this.store.dispatch(addListAssets({ ListAssets: res }));
     });
   }

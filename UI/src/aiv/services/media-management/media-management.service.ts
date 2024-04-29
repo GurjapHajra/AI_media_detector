@@ -62,17 +62,23 @@ export class MediaManagementService {
     );
   }
 
-  getMedia(): Observable<GetMediaListResponse[]> {
-    return this.http.get(`${environment.url}`).pipe(
-      map((res: any) => {
-        res = JSON.parse(res['message']);
-        res = res.reduce((acc: any, ele: any) => {
-          acc.push(FlattenToGetMediaListResponse(ele));
-          return acc;
-        }, []);
-        return res;
-      })
-    );
+  getMedia(filter?: string, page?: number): Observable<GetMediaListResponse[]> {
+    console.log('::: filter:', filter, 'page:', page);
+    return this.http
+      .get(
+        `${environment.url}/db?page=${page ?? 0}&filter_value=${filter ?? ''}`
+      )
+      .pipe(
+        map((res: any) => {
+          res = JSON.parse(res['message']);
+          console.log(':res', res);
+          res = res.reduce((acc: any, ele: any) => {
+            acc.push(FlattenToGetMediaListResponse(ele));
+            return acc;
+          }, []);
+          return res;
+        })
+      );
   }
 
   deleteMedia(id: string) {

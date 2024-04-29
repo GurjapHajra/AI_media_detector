@@ -10,12 +10,14 @@ import { remoteAssetFeature } from '@aiv/store/remote-assets-store/remote-asset-
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [MediaFinderComponent],
   imports: [
     CommonModule,
     MediaFinderRoutingModule,
+    FormsModule,
     MatButtonModule,
     MatFormFieldModule,
     MatTableModule,

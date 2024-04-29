@@ -116,6 +116,69 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
+def db_get_handler(event, context):  # pylint: disable=unused-argument
+    """Media Service Post Handler Lambda function"""
+
+    if not event["queryStringParameters"] or not (
+        "page" in event["queryStringParameters"]
+    ):
+        target_page = 0
+    else:
+        target_page = int(event["queryStringParameters"]["page"])
+
+    if not event["queryStringParameters"] or not (
+        "filter_value" in event["queryStringParameters"]
+    ):
+        filter_value = ""
+    else:
+        filter_value = event["queryStringParameters"]["filter_value"]
+
+    db_client = boto3.client("dynamodb")
+
+    paginator = db_client.get_paginator("scan")
+
+    res = paginator.paginate(
+        TableName=DB_NAME,
+        Select="ALL_ATTRIBUTES",
+        PaginationConfig={"PageSize": 20},
+        FilterExpression="contains(#asset_name, :asset_name)",
+        ExpressionAttributeNames={"#asset_name": "asset_name"},
+        ExpressionAttributeValues={":asset_name": {"S": filter_value}},
+    )
+
+    curr_page = 0
+    for page in res:
+        if curr_page == target_page:
+            return {
+                "statusCode": 200,
+                "body": json.dumps(
+                    {
+                        "message": json.dumps(page["Items"]),
+                    }
+                ),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                },
+            }
+        curr_page += 1
+
+    return {
+        "statusCode": 404,
+        "body": json.dumps(
+            {
+                "message": "No more pages",
+            }
+        ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
+    }
+
+
 def db_handler(event, context):  # pylint: disable=unused-argument
     """Media Service Post Handler Lambda function"""
 

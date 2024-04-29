@@ -1,7 +1,7 @@
 <div class="search">
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>Asset Name</mat-label>
-    <input matInput (keydown.enter)="searched()">
+    <input matInput type="text" [(ngModel)]="filter" (keydown.enter)="searched()">
   </mat-form-field>
   <button mat-flat-button (click)="searched()">Search</button>
 </div>

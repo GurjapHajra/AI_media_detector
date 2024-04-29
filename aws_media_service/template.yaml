@@ -46,6 +46,24 @@ Resources:
         S3CrudPolicy:
           BucketName: !Ref MediaServiceS3Bucket
 
+  MediaServiceDBGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.db_get_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /db
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+
   MediaServicePostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
