@@ -44,7 +44,9 @@ export class MediaManagementService {
         return this.http.post(res.url, formData).subscribe((val) => {
           this.getMediaUrl(res.fields.key).subscribe((url) => {
             this.generateHash(url.url).subscribe((hash) => {
-              this.updateDB(media.file.name, hash);
+              this.updateDB(media.file.name, hash).subscribe((val) =>
+                console.log(':::DB Updated', val)
+              );
             });
           });
         });
