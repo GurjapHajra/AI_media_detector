@@ -42,9 +42,24 @@ export class MediaManagementService {
         formData.append('file', media.file);
 
         return this.http.post(res.url, formData).subscribe((val) => {
-          console.log(val);
+          console.log('::: upload res: ', val);
+          this.getMediaUrl(res.fields.key).subscribe((url) => {
+            console.log('::: url:', url.url);
+            this.generateHash(url.url).subscribe((hash) => {
+              this.updateDB(media.file.name, hash).subscribe((res) =>
+                console.log('::: db res:', res)
+              );
+            });
+          });
         });
       });
+  }
+
+  updateDB(file_name: string, file_id: string) {
+    return this.http.post(
+      `${environment.url}db?asset_id=${file_id}&asset_name=${file_name}`,
+      null
+    );
   }
 
   getMedia(): Observable<GetMediaListResponse[]> {
@@ -70,7 +85,7 @@ export class MediaManagementService {
   ): Observable<PostUnsignUrlResponse> {
     return this.http
       .post(
-        `${environment.url}?file_name=${file_name}&file_type=${file_type}`,
+        `${environment.url}upload?file_name=${file_name}&file_type=${file_type}`,
         null
       )
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
