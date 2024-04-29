@@ -1,17 +1,27 @@
-<div>
-  <form id="signupForm" (submit)="handleSignUp($event)">
-    <label for="username">Username:</label>
-    <input type="text" id="username" required /><br />
+<form [formGroup]="profileForm" (submit)="handleSignUp($event)">
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput placeholder="Username" formControlName="username" required />
+    <mat-error>Username is required</mat-error>
+  </mat-form-field>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" required /><br />
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" placeholder="Password" formControlName="password" required />
+    <mat-error>Password is required</mat-error>
+  </mat-form-field>
 
-    <label for="confirmPassword">Confirm Password:</label>
-    <input type="password" id="confirmPassword" required /><br />
+  <mat-form-field>
+    <mat-label>confirmPassword</mat-label>
+    <input matInput type="password" placeholder="confirmPassword" formControlName="confirmPassword" required />
+    <mat-error>{{ this.profileForm.errors ? this.profileForm.errors['message'] : null }}</mat-error>
+  </mat-form-field>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" required /><br />
+  <mat-form-field>
+    <mat-label>Email</mat-label>
+    <input matInput type="email" placeholder="email" formControlName="email" required />
+    <mat-error>invalid email</mat-error>
+  </mat-form-field>
 
-    <button type="submit">Sign Up</button>
-  </form>
-</div>
+  <button [disabled]="!this.profileForm.valid" mat-flat-button type="submit" color="primary">Sign Up</button>
+</form>
