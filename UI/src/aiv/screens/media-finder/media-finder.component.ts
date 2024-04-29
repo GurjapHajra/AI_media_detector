@@ -52,9 +52,6 @@ export class MediaFinderComponent {
     this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
       take(1);
       this.picUrl = res.url;
-      this.MediaManagementService.generateHash(res.url).subscribe((res) => {
-        console.log(res);
-      });
     });
   }
 

@@ -42,13 +42,9 @@ export class MediaManagementService {
         formData.append('file', media.file);
 
         return this.http.post(res.url, formData).subscribe((val) => {
-          console.log('::: upload res: ', val);
           this.getMediaUrl(res.fields.key).subscribe((url) => {
-            console.log('::: url:', url.url);
             this.generateHash(url.url).subscribe((hash) => {
-              this.updateDB(media.file.name, hash).subscribe((res) =>
-                console.log('::: db res:', res)
-              );
+              this.updateDB(media.file.name, hash);
             });
           });
         });
@@ -63,7 +59,6 @@ export class MediaManagementService {
   }
 
   getMedia(filter?: string, page?: number): Observable<GetMediaListResponse[]> {
-    console.log('::: filter:', filter, 'page:', page);
     return this.http
       .get(
         `${environment.url}/db?page=${page ?? 0}&filter_value=${filter ?? ''}`
@@ -71,7 +66,6 @@ export class MediaManagementService {
       .pipe(
         map((res: any) => {
           res = JSON.parse(res['message']);
-          console.log(':res', res);
           res = res.reduce((acc: any, ele: any) => {
             acc.push(FlattenToGetMediaListResponse(ele));
             return acc;
