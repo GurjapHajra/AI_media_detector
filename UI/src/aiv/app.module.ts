@@ -1,6 +1,6 @@
 import { NgModule, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 import { HeaderComponent } from './components/header/header.component';
+import { SginUpComponent } from './components/sgin-up/sgin-up.component';
 
 @NgModule({
   declarations: [AppComponent],
@@ -17,6 +18,8 @@ import { HeaderComponent } from './components/header/header.component';
   bootstrap: [AppComponent],
   imports: [
     AppRoutingModule,
+    FormsModule,
+    ReactiveFormsModule,
     BrowserModule,
     HttpClientModule,
     StoreModule.forRoot({}),
@@ -29,7 +32,8 @@ import { HeaderComponent } from './components/header/header.component';
       traceLimit: 75, // maximum stack trace frames to be stored (in case trace option was provided as true)
       connectInZone: true, // If set to true, the connection is established within the Angular zone
     }),
-    HeaderComponent
+    HeaderComponent,
+    SginUpComponent
   ]
 })
 export class AppModule { }

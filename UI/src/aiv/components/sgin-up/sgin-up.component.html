@@ -1,31 +1,16 @@
 <div>
-  <form id="signupForm" (ngSubmit)="handleSignUp()">
+  <form id="signupForm" (submit)="handleSignUp($event)">
     <label for="username">Username:</label>
-    <input
-      type="text"
-      id="username"
-      formControlName="username"
-      required
-    /><br />
+    <input type="text" id="username" required /><br />
 
     <label for="password">Password:</label>
-    <input
-      type="password"
-      id="password"
-      formControlName="password"
-      required
-    /><br />
+    <input type="password" id="password" required /><br />
 
-    <label for="password">Confirm Password:</label>
-    <input
-      type="password"
-      id="confirmPassword"
-      formControlName="confirmPassword"
-      required
-    /><br />
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" required /><br />
 
     <label for="email">Email:</label>
-    <input type="email" id="email" formControlName="email" required /><br />
+    <input type="email" id="email" required /><br />
 
     <button type="submit">Sign Up</button>
   </form>
