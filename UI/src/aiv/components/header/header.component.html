@@ -1,2 +1,11 @@
-<img src="../../../assets/logo.png" (click)="onHomeClick()">
-<button mat-flat-button color="primary" (click)="signout.emit()">Sign Out</button>
+<img src="../../../assets/logo.png" (click)="onHomeClick()" />
+
+<div class="header-links">
+  <button mat-flat-button color="primary" (click)="createAccount()">
+    <mat-icon>person_add</mat-icon>
+  </button>
+
+  <button mat-flat-button color="primary" (click)="signout.emit()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</div>

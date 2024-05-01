@@ -30,7 +30,18 @@ const routes: Routes = [
         (m) => m.MediaFinderModule
       ),
   },
-  { path: 'uploader', loadChildren: () => import('./screens/uploader/uploader.module').then(m => m.UploaderModule) },
+  {
+    path: 'uploader',
+    loadChildren: () =>
+      import('./screens/uploader/uploader.module').then(
+        (m) => m.UploaderModule
+      ),
+  },
+  {
+    path: 'sign-up',
+    loadChildren: () =>
+      import('./screens/sign-up/sign-up.module').then((m) => m.SignUpModule),
+  },
 ];
 
 @NgModule({

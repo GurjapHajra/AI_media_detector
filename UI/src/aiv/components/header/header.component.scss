@@ -5,12 +5,29 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-}
+  
+  img {
+    height: 100%;
+  }
+  
+  img:hover {
+    cursor: pointer;
+  }
 
-img {
-  height: 100%;
-}
+  .header-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
 
-img:hover {
-  cursor: pointer;
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  mat-icon {
+    margin: 0;
+  }
+
 }
