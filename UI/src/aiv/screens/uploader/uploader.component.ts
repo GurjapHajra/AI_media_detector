@@ -19,6 +19,11 @@ export class UploaderComponent {
 
   assetDropped(assets: AssetFile[]) {
     this.store.dispatch(fromAssetStore.addAsset({ assets }));
+    // for testing purposes: get hash code when file dropped
+
+    // this.MediaManagementService.fetchImageAsBase64(
+    //   assets[0].url?.toString() ?? ''
+    // );
   }
 
   getlocalAsset(): Observable<AssetFile[]> {
