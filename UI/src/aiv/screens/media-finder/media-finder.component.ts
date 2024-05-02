@@ -58,6 +58,11 @@ export class MediaFinderComponent {
   protected verify(name: any) {
     this.MediaManagementService.getAssetFile(name).subscribe((res) => {
       this.mergeImages(res, name);
+      // for testing purposes: get hash code when asking for verification
+
+      // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
+      //   console.log(this.MediaManagementService.simpleHash(res));
+      // });
     });
   }
 

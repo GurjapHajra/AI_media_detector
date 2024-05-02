@@ -141,7 +141,6 @@ export class MediaManagementService {
           } else {
             scale = 4;
           }
-          console.log('scale', scale);
           img2.src = image2;
         };
         img2.onload = () => {
