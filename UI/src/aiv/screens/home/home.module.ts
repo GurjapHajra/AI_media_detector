@@ -9,4 +9,4 @@ import { MatButtonModule } from '@angular/material/button';
   declarations: [HomeComponent],
   imports: [CommonModule, HomeRoutingModule, MatButtonModule],
 })
-export class HomeModule {}
+export class HomeModule { }
