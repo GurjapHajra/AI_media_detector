@@ -78,7 +78,12 @@ export class MediaManagementService {
   }
 
   deleteMedia(id: string) {
-    return this.http.delete(`/api/media/${id}`);
+    return this.http.post(`${environment.url}delete?asset_id=${id}`, null).pipe(
+      map((res) => {
+        console.log(':::Deleted', res);
+        return res;
+      })
+    );
   }
 
   getPostUnsignUrl(

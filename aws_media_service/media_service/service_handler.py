@@ -138,7 +138,9 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
 
     asset_id = event["queryStringParameters"]["asset_id"]
 
-    if db_item_by_id(asset_id) == ClientError:
+    asset = db_item_by_id(asset_id)
+
+    if asset == Exception:
         return {
             "statusCode": 400,
             "body": json.dumps(
@@ -153,9 +155,7 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
             },
         }
 
-    asset = db_item_by_id(asset_id)
-
-    if get_file_s3_info(object_name=asset["asset_name"]["S"]) == ClientError:
+    if get_file_s3_info(object_name=asset["asset_name"]["S"]) == Exception:
         return {
             "statusCode": 400,
             "body": json.dumps(
@@ -182,12 +182,12 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
 
         s3_client = boto3.client("s3")
         s3_client.delete_object(Bucket=BUCKET_NAME, Key=asset["asset_name"]["S"])
-    except ClientError as e:
+    except Exception as e:
         logging.error(e)
         return {
             "statusCode": 200,
             "body": {
-                "error": e.response["Error"]["Message"],
+                "error": str(e),
             },
             "headers": {
                 "Access-Control-Allow-Origin": "*",
@@ -349,7 +349,7 @@ def db_item_by_id(asset_id):
             res_asset = asset
 
     if res_asset is None:
-        return ClientError
+        return Exception
 
     try:
         # Get all items in the database
@@ -360,9 +360,8 @@ def db_item_by_id(asset_id):
                 "asset_name": {"S": res_asset["asset_name"]["S"]},
             },
         )
-    except ClientError as e:
-        logging.error(e)
-        return type(e)
+    except Exception as e:
+        return e
 
     return response["Item"]
 
@@ -488,10 +487,11 @@ def get_file_s3_info(bucket=BUCKET_NAME, object_name=None):
     # Upload the file
     s3_client = boto3.client("s3")
     try:
-        return s3_client.get_object(
+        res = s3_client.get_object(
             Bucket=bucket,
             Key=object_name,
         )
-    except ClientError as e:
-        logging.error(e)
-        return type(e)
+    except Exception as e:
+        return e
+
+    return res
