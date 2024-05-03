@@ -182,7 +182,7 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
 
         s3_client = boto3.client("s3")
         s3_client.delete_object(Bucket=BUCKET_NAME, Key=asset["asset_name"]["S"])
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         logging.error(e)
         return {
             "statusCode": 200,
@@ -360,7 +360,7 @@ def db_item_by_id(asset_id):
                 "asset_name": {"S": res_asset["asset_name"]["S"]},
             },
         )
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         return e
 
     return response["Item"]
@@ -491,7 +491,7 @@ def get_file_s3_info(bucket=BUCKET_NAME, object_name=None):
             Bucket=bucket,
             Key=object_name,
         )
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         return e
 
     return res
