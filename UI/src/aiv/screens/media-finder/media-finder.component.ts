@@ -3,8 +3,8 @@ import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, map, take } from 'rxjs';
-import * as QRCode from 'qrcode';
+import { Observable, catchError, map, switchMap, take, tap } from 'rxjs';
+import { error } from 'console';
 
 @Component({
   selector: 'app-media-finder',
@@ -21,6 +21,7 @@ export class MediaFinderComponent {
         let date = new Date(item.last_modified).toLocaleDateString();
 
         return {
+          id: item.asset_id,
           name: item.asset_name,
           size: Math.round(item.asset_size / 10) / 100,
           LastModified: date,
@@ -35,6 +36,7 @@ export class MediaFinderComponent {
     'LastModified',
     'view',
     'verify',
+    'delete',
   ];
 
   constructor(
@@ -55,7 +57,7 @@ export class MediaFinderComponent {
     });
   }
 
-  protected verify(name: any) {
+  protected verify(name: string) {
     this.MediaManagementService.getAssetFile(name).subscribe((res) => {
       this.mergeImages(res, name);
       // for testing purposes: get hash code when asking for verification
@@ -64,6 +66,29 @@ export class MediaFinderComponent {
       //   console.log(this.MediaManagementService.simpleHash(res));
       // });
     });
+  }
+
+  protected deleteMedia(name: string) {
+    this.store
+      .select(getListAssets)
+      .pipe(
+        take(1),
+        map((res) => {
+          return res.find((item) => item.asset_name === name);
+        }),
+        switchMap((res) => {
+          return this.MediaManagementService.deleteMedia(res?.asset_id ?? '');
+        }),
+        map(() => {
+          this.searched();
+          alert('Successfully deleted!');
+        }),
+        catchError((err) => {
+          alert('Error: ' + err.error.message);
+          return err;
+        })
+      )
+      .subscribe();
   }
 
   protected mergeImages(url: string, name: string) {

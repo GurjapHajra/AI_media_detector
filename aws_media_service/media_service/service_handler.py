@@ -116,6 +116,101 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
+def delete_handler(event, context):  # pylint: disable=unused-argument
+    """Media Service Post Handler Lambda function"""
+
+    if not event["queryStringParameters"] or not (
+        "asset_id" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing asset_id parameter",
+                }
+            ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            },
+        }
+
+    asset_id = event["queryStringParameters"]["asset_id"]
+
+    asset = db_item_by_id(asset_id)
+
+    if asset == Exception:
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "asset_id not found in database",
+                }
+            ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            },
+        }
+
+    if get_file_s3_info(object_name=asset["asset_name"]["S"]) == Exception:
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "asset_name not found in S3 bucket",
+                }
+            ),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            },
+        }
+
+    try:
+        db_client = boto3.client("dynamodb")
+        db_client.delete_item(
+            TableName=DB_NAME,
+            Key={
+                "asset_id": {"S": asset_id},
+                "asset_name": {"S": asset["asset_name"]["S"]},
+            },
+        )
+
+        s3_client = boto3.client("s3")
+        s3_client.delete_object(Bucket=BUCKET_NAME, Key=asset["asset_name"]["S"])
+    except Exception as e:  # pylint: disable=broad-except
+        logging.error(e)
+        return {
+            "statusCode": 200,
+            "body": {
+                "error": str(e),
+            },
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            },
+        }
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": "asset deleted successfully",
+            }
+        ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
+    }
+
+
 def db_get_handler(event, context):  # pylint: disable=unused-argument
     """Media Service Post Handler Lambda function"""
 
@@ -243,6 +338,34 @@ def db_reader():
     return response["Items"]
 
 
+def db_item_by_id(asset_id):
+    """Read the database and return the contents"""
+    db_client = boto3.client("dynamodb")
+
+    res_asset = None
+
+    for asset in db_reader():
+        if asset["asset_id"]["S"] == asset_id:
+            res_asset = asset
+
+    if res_asset is None:
+        return Exception
+
+    try:
+        # Get all items in the database
+        response = db_client.get_item(
+            TableName=DB_NAME,
+            Key={
+                "asset_id": {"S": asset_id},
+                "asset_name": {"S": res_asset["asset_name"]["S"]},
+            },
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+
+    return response["Item"]
+
+
 def db_updater_with_s3():
     """Update the database based on the files in the S3 bucket"""
     db_client = boto3.client("dynamodb")
@@ -363,7 +486,12 @@ def get_file_s3_info(bucket=BUCKET_NAME, object_name=None):
 
     # Upload the file
     s3_client = boto3.client("s3")
-    return s3_client.get_object(
-        Bucket=bucket,
-        Key=object_name,
-    )
+    try:
+        res = s3_client.get_object(
+            Bucket=bucket,
+            Key=object_name,
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+
+    return res

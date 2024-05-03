@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "app.lambda_handler"
 manifest_hash = "19b8b9824e319831f9b18e36ada7b043"
 packagetype = "Zip"
-functions = ["MediaServiceGetFunction", "MediaServiceDBGetFunction", "MediaServicePostFunction", "MediaServiceDBFunction"]
+functions = ["MediaServiceGetFunction", "MediaServiceDBGetFunction", "MediaServicePostFunction", "MediaServiceDBFunction", "MediaServiceDeleteFunction"]
 
 [layer_build_definitions]
