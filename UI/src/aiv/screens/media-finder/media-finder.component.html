@@ -1,7 +1,7 @@
 <div class="search">
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>Asset Name</mat-label>
-    <input matInput (keydown.enter)="searched()">
+    <input matInput type="text" [(ngModel)]="filter" (keydown.enter)="searched()">
   </mat-form-field>
   <button mat-flat-button (click)="searched()">Search</button>
 </div>
@@ -11,7 +11,7 @@
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell class="clickable" *matCellDef="let element" (click)="openImage(element.name)"> {{element.name}} </td>
+      <td mat-cell color="primary" *matCellDef="let element"> {{element.name}} </td>
     </ng-container>
 
     <!-- Size Column -->
@@ -24,6 +24,26 @@
     <ng-container matColumnDef="LastModified">
       <th mat-header-cell *matHeaderCellDef> Last Modified </th>
       <td mat-cell *matCellDef="let element"> {{element.LastModified}} </td>
+    </ng-container>
+
+    <!-- verify Column -->
+    <ng-container matColumnDef="view">
+      <th mat-header-cell *matHeaderCellDef> View </th>
+      <td mat-cell *matCellDef="let element" (click)="openImage(element.name)">
+        <button mat-flat-button color="primary">
+          view
+        </button>
+      </td>
+    </ng-container>
+
+    <!-- verify Column -->
+    <ng-container matColumnDef="verify">
+      <th mat-header-cell *matHeaderCellDef> Verify </th>
+      <td mat-cell *matCellDef="let element" (click)="verify(element.name)">
+        <button mat-flat-button color="primary">
+          verify
+        </button>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

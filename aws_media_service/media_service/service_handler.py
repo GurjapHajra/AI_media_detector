@@ -1,11 +1,15 @@
 """service_handler.py: contains the main functions for the media service"""
 
+import hashlib
 import json
 import logging
+import os
+
 import boto3
 from botocore.exceptions import ClientError
 
 BUCKET_NAME = "media-service-737855111243-us-east-1"
+DB_NAME = "MediaServiceAssets"
 
 
 def get_handler(event, context):  # pylint: disable=unused-argument
@@ -112,6 +116,173 @@ def post_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
+def db_get_handler(event, context):  # pylint: disable=unused-argument
+    """Media Service Post Handler Lambda function"""
+
+    if not event["queryStringParameters"] or not (
+        "page" in event["queryStringParameters"]
+    ):
+        target_page = 0
+    else:
+        target_page = int(event["queryStringParameters"]["page"])
+
+    if not event["queryStringParameters"] or not (
+        "filter_value" in event["queryStringParameters"]
+    ):
+        filter_value = ""
+    else:
+        filter_value = event["queryStringParameters"]["filter_value"]
+
+    db_client = boto3.client("dynamodb")
+
+    paginator = db_client.get_paginator("scan")
+
+    res = paginator.paginate(
+        TableName=DB_NAME,
+        Select="ALL_ATTRIBUTES",
+        PaginationConfig={"PageSize": 20},
+        FilterExpression="contains(#asset_name, :asset_name)",
+        ExpressionAttributeNames={"#asset_name": "asset_name"},
+        ExpressionAttributeValues={":asset_name": {"S": filter_value}},
+    )
+
+    curr_page = 0
+    for page in res:
+        if curr_page == target_page:
+            return {
+                "statusCode": 200,
+                "body": json.dumps(
+                    {
+                        "message": json.dumps(page["Items"]),
+                    }
+                ),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+                },
+            }
+        curr_page += 1
+
+    return {
+        "statusCode": 404,
+        "body": json.dumps(
+            {
+                "message": "No more pages",
+            }
+        ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
+    }
+
+
+def db_handler(event, context):  # pylint: disable=unused-argument
+    """Media Service Post Handler Lambda function"""
+
+    db_client = boto3.client("dynamodb")
+
+    if not event["queryStringParameters"] or not (
+        "asset_id" in event["queryStringParameters"]
+        and "asset_name" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing asset_id or asset_name parameter",
+                }
+            ),
+        }
+
+    file_name = event["queryStringParameters"]["asset_name"]
+
+    file_info = get_file_s3_info(object_name=file_name)
+
+    data = {
+        "asset_id": {"S": event["queryStringParameters"]["asset_id"]},
+        "asset_name": {"S": event["queryStringParameters"]["asset_name"]},
+        "asset_type": {"S": os.path.splitext(file_name)[1]},
+        "asset_size": {"N": str(file_info["ContentLength"])},
+        "last_modified": {"S": file_info["LastModified"].isoformat()},
+        "verified": {"BOOL": False},
+        "upvotes": {"N": "0"},
+        "downvotes": {"N": "0"},
+        "p_hash": {"S": "0"},
+    }
+
+    # Update the database
+    res = db_client.put_item(
+        TableName=DB_NAME,
+        Item=data,
+    )
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "res": f"{res}",
+            }
+        ),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        },
+    }
+
+
+def db_reader():
+    """Read the database and return the contents"""
+    db_client = boto3.client("dynamodb")
+
+    # Get all items in the database
+    response = db_client.scan(TableName="MediaServiceAssets")
+
+    return response["Items"]
+
+
+def db_updater_with_s3():
+    """Update the database based on the files in the S3 bucket"""
+    db_client = boto3.client("dynamodb")
+
+    # Get all files in the S3 bucket
+    files = get_all_files()
+
+    # Update the database
+    for file in files:
+        # Get the file name
+        file_name = file["Key"]
+
+        # Get the file type
+        file_type = file_name.split(".")[-1]
+
+        # Get the file size
+        file_size = file["Size"]
+
+        # Get the last modified date
+        last_modified = file["LastModified"]
+
+        data = {
+            "asset_id": {"S": hashlib.md5(file_name.encode()).hexdigest()},
+            "asset_name": {"S": file_name},
+            "asset_type": {"S": file_type},
+            "asset_size": {"N": str(file_size)},
+            "last_modified": {"S": last_modified.isoformat()},
+            "verified": {"BOOL": False},
+            "upvotes": {"N": "0"},
+            "downvotes": {"N": "0"},
+            "p_hash": {"S": "0"},
+        }
+
+        # Update the database
+        db_client.put_item(
+            TableName=DB_NAME,
+            Item=data,
+        )
+
+
 def create_presigned_post(
     bucket=BUCKET_NAME, object_name=None, file_type=None
 ):  # pylint: disable=unused-argument
@@ -180,3 +351,19 @@ def get_matching_files(bucket=BUCKET_NAME, prefix=None):
     except ClientError as e:
         logging.error(e)
         return None
+
+
+def get_file_s3_info(bucket=BUCKET_NAME, object_name=None):
+    """Get a file from an S3 bucket
+
+    :param bucket: Bucket to get file from
+    :param object_name: S3 object name
+    :return: True if file was uploaded, else False
+    """
+
+    # Upload the file
+    s3_client = boto3.client("s3")
+    return s3_client.get_object(
+        Bucket=bucket,
+        Key=object_name,
+    )
