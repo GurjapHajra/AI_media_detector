@@ -128,11 +128,11 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref MediaServiceDynamoDBTable
 
-  MediaServiceDBFunction:
+  DBUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: media_service/
-      Handler: service_handler.db_handler
+      Handler: service_handler.db_update_handler
       Runtime: python3.10
       Architectures:
         - x86_64

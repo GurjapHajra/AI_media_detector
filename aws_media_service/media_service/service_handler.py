@@ -19,7 +19,7 @@ CORS_HEADERS = {
 
 
 def get_asset_url_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Get Handler Lambda function"""
+    """returns the url of the asset"""
     if isinstance(event["queryStringParameters"], dict):
         if "asset_name" in event["queryStringParameters"]:
             asset_name = event["queryStringParameters"]["asset_name"]
@@ -57,11 +57,11 @@ def get_asset_url_handler(event, context):  # pylint: disable=unused-argument
 
 
 def get_s3_assest_list_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Get Handler Lambda function"""
+    """returns the list of assets in the s3 bucket"""
     if isinstance(event["queryStringParameters"], dict):
         if "prefix" in event["queryStringParameters"]:
             prefix = event["queryStringParameters"]["prefix"]
-            files = get_matching_files(prefix=prefix)
+            files = get_matching_assets(prefix=prefix)
 
             for ele in files:
                 ele["LastModified"] = f"{ele.get('LastModified').isoformat()}"
@@ -102,12 +102,7 @@ def get_s3_assest_list_handler(event, context):  # pylint: disable=unused-argume
 
 
 def get_upload_url_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Post Handler Lambda function
-
-    :param event: dict, required
-        API Gateway Lambda Proxy Input Format
-    :return: API Gateway Lambda Proxy Output Format: dict
-    """
+    """returns the url(pre-signed url) to upload the asset"""
 
     if not isinstance(event["queryStringParameters"], dict) or not (
         "asset_name" in event["queryStringParameters"]
@@ -141,7 +136,7 @@ def get_upload_url_handler(event, context):  # pylint: disable=unused-argument
 
 
 def delete_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Post Handler Lambda function"""
+    """delete the asset from the s3 bucket and database given the asset_id"""
 
     if not isinstance(event["queryStringParameters"], dict) or not (
         "asset_id" in event["queryStringParameters"]
@@ -171,7 +166,7 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
             "headers": CORS_HEADERS,
         }
 
-    if isinstance(get_file_s3_info(object_name=asset["asset_name"]["S"]), Exception):
+    if isinstance(get_asset_s3_info(object_name=asset["asset_name"]["S"]), Exception):
         return {
             "statusCode": 404,
             "body": json.dumps(
@@ -217,7 +212,7 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
 
 
 def db_get_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Post Handler Lambda function"""
+    """returns the assets from the database based on the page number and filter value"""
 
     target_page = (
         0
@@ -273,8 +268,8 @@ def db_get_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
-def db_handler(event, context):  # pylint: disable=unused-argument
-    """Media Service Post Handler Lambda function"""
+def db_update_handler(event, context):  # pylint: disable=unused-argument
+    """update the database with the asset details, must upload to s3 first"""
 
     db_client = boto3.client("dynamodb")
 
@@ -294,7 +289,7 @@ def db_handler(event, context):  # pylint: disable=unused-argument
 
     file_name = event["queryStringParameters"]["asset_name"]
 
-    file_info = get_file_s3_info(object_name=file_name)
+    file_info = get_asset_s3_info(object_name=file_name)
 
     data = {
         "asset_id": {"S": event["queryStringParameters"]["asset_id"]},
@@ -325,7 +320,7 @@ def db_handler(event, context):  # pylint: disable=unused-argument
 
 
 def db_reader():
-    """Read the database and return the contents"""
+    """return all the items in the database"""
     db_client = boto3.client("dynamodb")
 
     # Get all items in the database
@@ -335,7 +330,7 @@ def db_reader():
 
 
 def db_item_by_id(asset_id):
-    """Read the database and return the contents"""
+    """returns the asset from the database based on the asset_id"""
     db_client = boto3.client("dynamodb")
 
     res_asset = None
@@ -360,6 +355,78 @@ def db_item_by_id(asset_id):
         return e
 
     return response["Item"]
+
+
+def create_presigned_post(
+    bucket=BUCKET_NAME, object_name=None, asset_type=None
+):  # pylint: disable=unused-argument
+    """returns the pre-signed url to upload the asset to the s3 bucket"""
+
+    # Upload the file
+    s3_client = boto3.client("s3")
+
+    return s3_client.generate_presigned_post(
+        Bucket=bucket, Key=f"{object_name}", ExpiresIn=300
+    )
+
+
+def get_all_files(bucket=BUCKET_NAME):
+    """Get all files from an S3 bucket"""
+
+    # Retrieve the list of bucket objects
+    s3_client = boto3.client("s3")
+    try:
+        response = s3_client.list_objects_v2(Bucket=bucket)
+    except ClientError as e:
+        logging.error(e)
+        return e
+    return response["Contents"]
+
+
+def get_asset_url(bucket=BUCKET_NAME, object_name=None):
+    """return the url for an asset from an S3 bucket"""
+
+    # Upload the file
+    s3_client = boto3.client("s3")
+    s3_info = get_asset_s3_info(object_name=object_name)
+
+    if isinstance(s3_info, Exception):
+        return s3_info
+
+    try:
+        url = s3_client.generate_presigned_url(
+            "get_object", Params={"Bucket": bucket, "Key": object_name}, ExpiresIn=300
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+    return url
+
+
+def get_matching_assets(bucket=BUCKET_NAME, prefix=None):
+    """Get all asssets from an S3 bucket that match a prefix"""
+
+    # Retrieve the list of bucket objects
+    s3_client = boto3.client("s3")
+    try:
+        return s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)["Contents"]
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+
+
+def get_asset_s3_info(bucket=BUCKET_NAME, object_name=None):
+    """returns the asset info from the s3 bucket"""
+
+    # Upload the file
+    s3_client = boto3.client("s3")
+    try:
+        res = s3_client.get_object(
+            Bucket=bucket,
+            Key=object_name,
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+
+    return res
 
 
 def db_updater_with_s3():
@@ -400,100 +467,3 @@ def db_updater_with_s3():
             TableName=DB_NAME,
             Item=data,
         )
-
-
-def create_presigned_post(
-    bucket=BUCKET_NAME, object_name=None, asset_type=None
-):  # pylint: disable=unused-argument
-    """Upload a file to an S3 bucket
-
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified then file_name is used
-    :return: True if file was uploaded, else False
-    """
-
-    # Upload the file
-    s3_client = boto3.client("s3")
-
-    return s3_client.generate_presigned_post(
-        Bucket=bucket, Key=f"{object_name}", ExpiresIn=300
-    )
-
-
-def get_all_files(bucket=BUCKET_NAME):
-    """Get all files in an S3 bucket
-
-    :param bucket: Bucket to get files from
-    :return: List of files in bucket. If error, return None
-    """
-
-    # Retrieve the list of bucket objects
-    s3_client = boto3.client("s3")
-    try:
-        response = s3_client.list_objects_v2(Bucket=bucket)
-    except ClientError as e:
-        logging.error(e)
-        return e
-    return response["Contents"]
-
-
-def get_asset_url(bucket=BUCKET_NAME, object_name=None):
-    """Get a file from an S3 bucket
-
-    :param bucket: Bucket to get file from
-    :param object_name: S3 object name
-    :return: True if file was uploaded, else False
-    """
-
-    # Upload the file
-    s3_client = boto3.client("s3")
-    s3_info = get_file_s3_info(object_name=object_name)
-
-    if isinstance(s3_info, Exception):
-        return s3_info
-
-    try:
-        url = s3_client.generate_presigned_url(
-            "get_object", Params={"Bucket": bucket, "Key": object_name}, ExpiresIn=300
-        )
-    except Exception as e:  # pylint: disable=broad-except
-        return e
-    return url
-
-
-def get_matching_files(bucket=BUCKET_NAME, prefix=None):
-    """Get files from an S3 bucket that closely match an input string
-
-    :param bucket: Bucket to get files from
-    :param input_string: Input string to match against file names
-    :return: List of matching files in bucket. If error, return None
-    """
-
-    # Retrieve the list of bucket objects
-    s3_client = boto3.client("s3")
-    try:
-        return s3_client.list_objects_v2(Bucket=bucket, Prefix=prefix)["Contents"]
-    except Exception as e:  # pylint: disable=broad-except
-        return e
-
-
-def get_file_s3_info(bucket=BUCKET_NAME, object_name=None):
-    """Get a file from an S3 bucket
-
-    :param bucket: Bucket to get file from
-    :param object_name: S3 object name
-    :return: True if file was uploaded, else False
-    """
-
-    # Upload the file
-    s3_client = boto3.client("s3")
-    try:
-        res = s3_client.get_object(
-            Bucket=bucket,
-            Key=object_name,
-        )
-    except Exception as e:  # pylint: disable=broad-except
-        return e
-
-    return res
