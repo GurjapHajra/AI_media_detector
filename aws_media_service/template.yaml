@@ -130,6 +130,26 @@ Resources:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
 
+  MediaServiceDeleteFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.delete_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /delete
+            Method: delete
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref MediaServiceS3Bucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
