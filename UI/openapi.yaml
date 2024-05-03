@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Swagger AI_media_detector - OpenAPI 3.0
+  description: prod link to the api = https://ztaz90xel6.execute-api.us-east-1.amazonaws.com/Prod/
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://ztaz90xel6.execute-api.us-east-1.amazonaws.com/Prod/
+tags:
+  - name: MediaService
+    description: Main endpoint for the application
+paths:
+  /get_file_url/{asset_name}:
+    get:
+      tags:
+        - MediaService
+      description: Returns the S3 media url
+      operationId: getS3MediaUrl
+      parameters:
+        - name: asset_name
+          in: path
+          description: name for the asset to return
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/asset_url"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/asset_url"
+        "400":
+          description: missing file_name parameter please
+        "404":
+          description: file_name not found in S3 bucket
+
+  /get_s3_assest_list/{prefix}:
+    get:
+      tags:
+        - MediaService
+      description: Returns a list of media stored in S3
+      operationId: getS3MediaList
+      parameters:
+        - name: prefix
+          in: path
+          description: name for the asset to return
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/s3_asset_list"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/s3_asset_list"
+        "400":
+          description: missing file_name parameter please
+        "404":
+          description: file_name not found in S3 bucket
+
+  /get_upload_url/{asset_name}{asset_type}:
+    get:
+      tags:
+        - MediaService
+      description: Return a presigned url
+      operationId: getUploadURL
+      parameters:
+        - name: asset_name
+          in: path
+          description: name of the asset to upload
+          required: true
+          schema:
+            type: string
+        - name: asset_type
+          in: path
+          description: type of the asset to upload
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/s3_upload_return"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/s3_upload_return"
+        "400":
+          description: missing asset_type or asset_name parameter
+
+  /db/{page}{filter}:
+    get:
+      tags:
+        - MediaService
+      description: Return the table from the DB with page and filter
+      operationId: getDBTable
+      parameters:
+        - name: page
+          in: path
+          description: name of the asset to upload
+          required: true
+          schema:
+            type: integer
+        - name: filter
+          in: path
+          description: type of the asset to upload
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DB_table"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DB_table"
+        "400":
+          description: missing asset_type or asset_name parameter
+
+  /delete/{asset_id}:
+    post:
+      tags:
+        - MediaService
+      description: Return the table from the DB with page and filter
+      operationId: deleteasset
+      parameters:
+        - name: asset_id
+          in: path
+          description: asset_id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/delete_return"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/delete_return"
+        "404":
+          description: couldn't find asset_id in DB or S3
+
+  /db/{asset_id}{asset_name}:
+    post:
+      tags:
+        - MediaService
+      description: Return the table from the DB with page and filter
+      operationId: updateDB
+      parameters:
+        - name: asset_id
+          in: path
+          description: asset_id to delete
+          required: true
+          schema:
+            type: string
+        - name: asset_name
+          in: path
+          description: asset_id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DB_update_return"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/DB_update_return"
+        "404":
+          description: couldn't find asset_id in DB or S3
+
+components:
+  schemas:
+    asset_url:
+      type: object
+      properties:
+        asset_name:
+          type: string
+        url:
+          type: string
+
+    s3_asset_list:
+      type: object
+      properties:
+        prefix:
+          type: string
+          example: love
+        assets:
+          type: string
+
+    s3_upload_return:
+      type: object
+      properties:
+        url:
+          type: string
+        fields:
+          type: string
+
+    DB_table:
+      type: object
+      properties:
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/DB_item"
+
+    delete_return:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        message:
+          type: string
+          example: asset deleted successfully
+
+    DB_update_return:
+      type: object
+      properties:
+        message:
+          type: string
+
+    DB_item:
+      type: object
+      properties:
+        asset_id:
+          type: string
+        asset_name:
+          type: string
+        asset_type:
+          type: string
+        asset_size:
+          type: integer
+        last_modified:
+          type: string
+        p_hash:
+          type: string
+        verified:
+          type: boolean
+        upvotes:
+          type: integer
+        downvotes:
+          type: integer
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
