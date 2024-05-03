@@ -175,12 +175,6 @@ Outputs:
   MediaServiceApi:
     Description: "API Gateway endpoint URL for Prod stage for MediaService function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-  MediaServiceGetFunction:
-    Description: "Hello MediaServiceFunction Lambda Function ARN"
-    Value: !GetAtt MediaServiceGetFunction.Arn
-  MediaServicePostFunction:
-    Description: "Hello MediaServiceFunction Lambda Function ARN"
-    Value: !GetAtt MediaServicePostFunction.Arn
   MediaServiceS3Bucket:
     Description: "MediaServiceS3Bucket"
     Value: !Ref MediaServiceS3Bucket
