@@ -18,7 +18,7 @@ tags:
   - name: MediaService
     description: Main endpoint for the application
 paths:
-  /get_file_url/{asset_name}:
+  /get_asset_url/{asset_name}:
     get:
       tags:
         - MediaService

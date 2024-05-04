@@ -2,7 +2,16 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
-import { Observable, map, switchMap, take } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  from,
+  map,
+  of,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
@@ -19,18 +28,19 @@ import { md5 } from 'js-md5';
 export class MediaManagementService {
   constructor(private http: HttpClient) {}
 
-  uploadMediaFiles(assets: AssetFile[]) {
-    assets.forEach((asset) => {
-      this.uploadMedia(asset);
-    });
+  //upload multiple media files
+  uploadMultipleAssets(assets: AssetFile[]): Observable<string> {
+    console.log(':::Uploading all', assets);
+    return from(assets).pipe(switchMap((asset) => this.uploalAsset(asset)));
   }
 
-  uploadMedia(media: AssetFile) {
+  uploalAsset(media: AssetFile): Observable<string> {
+    console.log(':::Uploading', media);
+
     const formData = new FormData();
 
-    return this.getPostUnsignUrl(media.file.name, media.file.type)
-      .pipe(take(1))
-      .subscribe((res: PostUnsignUrlResponse) => {
+    return this.getPostUnsignUrl(media.file.name, media.file.type).pipe(
+      map((res) => {
         formData.append('key', res.fields.key);
         formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
         formData.append(
@@ -40,17 +50,39 @@ export class MediaManagementService {
         formData.append('policy', res.fields.policy);
         formData.append('signature', res.fields.signature);
         formData.append('file', media.file);
+        return res;
+      }),
+      switchMap((res) => this.http.post(res.url, formData)),
+      switchMap(() => this.getAssetPreSignUrl(media.file.name)),
+      switchMap((url) => this.generateHash(url.url)),
+      switchMap((hash) => this.updateDB(media.file.name, hash)),
+      map(() => of('success')),
+      catchError((err) => {
+        return of(err);
+      })
+    );
 
-        return this.http.post(res.url, formData).subscribe((val) => {
-          this.getMediaUrl(res.fields.key).subscribe((url) => {
-            this.generateHash(url.url).subscribe((hash) => {
-              this.updateDB(media.file.name, hash).subscribe((val) =>
-                console.log(':::DB Updated', val)
-              );
-            });
-          });
-        });
-      });
+    // .subscribe((res: PostUnsignUrlResponse) => {
+    //   formData.append('key', res.fields.key);
+    //   formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
+    //   formData.append(
+    //     'x-amz-security-token',
+    //     res.fields['x-amz-security-token']
+    //   );
+    //   formData.append('policy', res.fields.policy);
+    //   formData.append('signature', res.fields.signature);
+    //   formData.append('file', media.file);
+
+    //   return this.http.post(res.url, formData).subscribe((val) => {
+    //     this.getMediaUrl(res.fields.key).subscribe((url) => {
+    //       this.generateHash(url.url).subscribe((hash) => {
+    //         this.updateDB(media.file.name, hash).subscribe((val) =>
+    //           console.log(':::DB Updated', val)
+    //         );
+    //       });
+    //     });
+    //   });
+    // });
   }
 
   updateDB(file_name: string, file_id: string) {
@@ -60,14 +92,15 @@ export class MediaManagementService {
     );
   }
 
-  getMedia(filter?: string, page?: number): Observable<GetMediaListResponse[]> {
+  getAssetListFromDb(
+    filter?: string,
+    page?: number
+  ): Observable<GetMediaListResponse[]> {
     return this.http
-      .get(
-        `${environment.url}/db?page=${page ?? 0}&filter_value=${filter ?? ''}`
-      )
+      .get(`${environment.url}/db?page=${page ?? 0}&filter=${filter ?? ''}`)
       .pipe(
         map((res: any) => {
-          res = JSON.parse(res['message']);
+          res = JSON.parse(res['assets']);
           res = res.reduce((acc: any, ele: any) => {
             acc.push(FlattenToGetMediaListResponse(ele));
             return acc;
@@ -80,36 +113,36 @@ export class MediaManagementService {
   deleteMedia(id: string) {
     return this.http.post(`${environment.url}delete?asset_id=${id}`, null).pipe(
       map((res) => {
-        console.log(':::Deleted', res);
         return res;
       })
     );
   }
 
   getPostUnsignUrl(
-    file_name: string,
-    file_type: string
+    asset_name: string,
+    asset_type: string
   ): Observable<PostUnsignUrlResponse> {
     return this.http
-      .post(
-        `${environment.url}upload?file_name=${file_name}&file_type=${file_type}`,
-        null
+      .get(
+        `${environment.url}get_upload_url?asset_name=${asset_name}&asset_type=${asset_type}`
       )
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
   }
 
-  getMediaUrl(key: string): Observable<{ url: string }> {
-    return this.http.get(`${environment.url}?file_name=${key}`).pipe(
-      map((res: any) => {
-        return { url: res['url'] };
-      })
-    );
+  getAssetPreSignUrl(name: string): Observable<{ url: string }> {
+    return this.http
+      .get(`${environment.url}get_asset_url?asset_name=${name}`)
+      .pipe(
+        map((res: any) => {
+          return { url: res['url'] };
+        })
+      );
   }
 
-  getAssetFile(name: string): Observable<string> {
-    return this.http
-      .get(`${environment.url}?file_name=${name}`)
-      .pipe(switchMap((res: any) => this.fetchImageAsBase64(res.url)));
+  getBase64FromAssetName(name: string): Observable<string> {
+    return this.getAssetPreSignUrl(name).pipe(
+      switchMap((res: any) => this.fetchImageAsBase64(res.url))
+    );
   }
 
   fetchImageAsBase64(url: string): Observable<string> {

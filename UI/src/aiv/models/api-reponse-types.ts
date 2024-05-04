@@ -47,15 +47,30 @@ export interface GetMediaListResponse {
 export function FlattenToGetMediaListResponse(
   object: any
 ): GetMediaListResponse {
-  return {
-    asset_id: object['asset_id']['S'],
-    asset_name: object['asset_name']['S'],
-    asset_type: object['asset_type']['S'],
-    asset_size: object['asset_size']['N'],
-    upvotes: object['upvotes']['N'],
-    downvotes: object['downvotes']['N'],
-    p_hash: object['p_hash']['S'],
-    verified: object['verified']['BOOL'],
-    last_modified: object['last_modified']['S'],
-  };
+  try {
+    return {
+      asset_id: object['asset_id']['S'] ?? 'unknown',
+      asset_name: object['asset_name']['S'] ?? 'unknown',
+      asset_type: object['asset_type']['S'] ?? 'unknown',
+      asset_size: object['asset_size']['N'] ?? 0,
+      upvotes: object['upvotes']['N'] ?? 'unknown',
+      downvotes: object['downvotes']['N'] ?? 'unknown',
+      p_hash: object['p_hash']['S'] ?? 'unknown',
+      verified: object['verified']['BOOL'] ?? false,
+      last_modified: object['last_modified']['S'] ?? 'unknown',
+    };
+  } catch (error) {
+    console.error("FlattenToGetMediaListResponse: couldn't convert", object);
+    return {
+      asset_id: 'unknown',
+      asset_name: 'unknown',
+      asset_type: 'unknown',
+      asset_size: 0,
+      upvotes: 0,
+      downvotes: 0,
+      p_hash: 'unknown',
+      verified: false,
+      last_modified: 'unknown',
+    };
+  }
 }
