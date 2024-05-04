@@ -2,35 +2,37 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
-import { Observable, map, switchMap, take } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
   PostUnsignUrlResponse,
 } from '@aiv/models/api-reponse-types';
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
-import { DomSanitizer } from '@angular/platform-browser';
-
-import { md5 } from 'js-md5';
-
 @Injectable({
   providedIn: 'root',
 })
 export class MediaManagementService {
   constructor(private http: HttpClient) {}
 
-  uploadMediaFiles(assets: AssetFile[]) {
-    assets.forEach((asset) => {
-      this.uploadMedia(asset);
-    });
+  // result: upload multiple media files
+  // intput: requires a list of AssetFile
+  // output: god knows
+  uploadMultipleAssets(assets: AssetFile[]): Observable<string> {
+    console.log(':::Uploading all', assets);
+    return from(assets).pipe(switchMap((asset) => this.uploalAsset(asset)));
   }
 
-  uploadMedia(media: AssetFile) {
+  // result: upload a media file
+  // intput: requires a AssetFile
+  // output: god knows
+  uploalAsset(media: AssetFile): Observable<string> {
+    console.log(':::Uploading', media);
+
     const formData = new FormData();
 
-    return this.getPostUnsignUrl(media.file.name, media.file.type)
-      .pipe(take(1))
-      .subscribe((res: PostUnsignUrlResponse) => {
+    return this.getPostUnsignUrl(media.file.name, media.file.type).pipe(
+      map((res) => {
         formData.append('key', res.fields.key);
         formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
         formData.append(
@@ -40,19 +42,44 @@ export class MediaManagementService {
         formData.append('policy', res.fields.policy);
         formData.append('signature', res.fields.signature);
         formData.append('file', media.file);
+        return res;
+      }),
+      switchMap((res) => this.http.post(res.url, formData)),
+      switchMap(() => this.getAssetPreSignUrl(media.file.name)),
+      switchMap((url) => this.generateHash(url.url)),
+      switchMap((hash) => this.updateDB(media.file.name, hash)),
+      map(() => of('success')),
+      catchError((err) => {
+        return of(err);
+      })
+    );
 
-        return this.http.post(res.url, formData).subscribe((val) => {
-          this.getMediaUrl(res.fields.key).subscribe((url) => {
-            this.generateHash(url.url).subscribe((hash) => {
-              this.updateDB(media.file.name, hash).subscribe((val) =>
-                console.log(':::DB Updated', val)
-              );
-            });
-          });
-        });
-      });
+    // .subscribe((res: PostUnsignUrlResponse) => {
+    //   formData.append('key', res.fields.key);
+    //   formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
+    //   formData.append(
+    //     'x-amz-security-token',
+    //     res.fields['x-amz-security-token']
+    //   );
+    //   formData.append('policy', res.fields.policy);
+    //   formData.append('signature', res.fields.signature);
+    //   formData.append('file', media.file);
+
+    //   return this.http.post(res.url, formData).subscribe((val) => {
+    //     this.getMediaUrl(res.fields.key).subscribe((url) => {
+    //       this.generateHash(url.url).subscribe((hash) => {
+    //         this.updateDB(media.file.name, hash).subscribe((val) =>
+    //           console.log(':::DB Updated', val)
+    //         );
+    //       });
+    //     });
+    //   });
+    // });
   }
 
+  // result: updates the database with the file name and file id using it's S3 info
+  // intput: requires a file name and file id
+  // output: god knows
   updateDB(file_name: string, file_id: string) {
     return this.http.post(
       `${environment.url}db?asset_id=${file_id}&asset_name=${file_name}`,
@@ -60,14 +87,18 @@ export class MediaManagementService {
     );
   }
 
-  getMedia(filter?: string, page?: number): Observable<GetMediaListResponse[]> {
+  // result: gets the list of media files from the database (20 per page)
+  // intput: requires a filter string and page number
+  // output: list of media files
+  getAssetListFromDb(
+    filter?: string,
+    page?: number
+  ): Observable<GetMediaListResponse[]> {
     return this.http
-      .get(
-        `${environment.url}/db?page=${page ?? 0}&filter_value=${filter ?? ''}`
-      )
+      .get(`${environment.url}/db?page=${page ?? 0}&filter=${filter ?? ''}`)
       .pipe(
         map((res: any) => {
-          res = JSON.parse(res['message']);
+          res = JSON.parse(res['assets']);
           res = res.reduce((acc: any, ele: any) => {
             acc.push(FlattenToGetMediaListResponse(ele));
             return acc;
@@ -77,41 +108,56 @@ export class MediaManagementService {
       );
   }
 
+  // result: deletes the asset from the database and S3 bucket
+  // intput: requires a file id
+  // output: god knows
   deleteMedia(id: string) {
     return this.http.post(`${environment.url}delete?asset_id=${id}`, null).pipe(
       map((res) => {
-        console.log(':::Deleted', res);
         return res;
       })
     );
   }
 
+  // result: gets the prsigned url to post assets too
+  // intput: requires the asset name and asset type
+  // output: presigned url, with the fields required to post the asset
   getPostUnsignUrl(
-    file_name: string,
-    file_type: string
+    asset_name: string,
+    asset_type: string
   ): Observable<PostUnsignUrlResponse> {
     return this.http
-      .post(
-        `${environment.url}upload?file_name=${file_name}&file_type=${file_type}`,
-        null
+      .get(
+        `${environment.url}get_upload_url?asset_name=${asset_name}&asset_type=${asset_type}`
       )
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
   }
 
-  getMediaUrl(key: string): Observable<{ url: string }> {
-    return this.http.get(`${environment.url}?file_name=${key}`).pipe(
-      map((res: any) => {
-        return { url: res['url'] };
-      })
+  // result: gets the presigned url to get the asset
+  // intput: requires the asset name
+  // output: presigned url
+  getAssetPreSignUrl(name: string): Observable<{ url: string }> {
+    return this.http
+      .get(`${environment.url}get_asset_url?asset_name=${name}`)
+      .pipe(
+        map((res: any) => {
+          return { url: res['url'] };
+        })
+      );
+  }
+
+  // result: gets the asset in base64 from the presigned url
+  // intput: requires the asset name
+  // output: base64 string of the asset
+  getBase64FromAssetName(name: string): Observable<string> {
+    return this.getAssetPreSignUrl(name).pipe(
+      switchMap((res: any) => this.fetchImageAsBase64(res.url))
     );
   }
 
-  getAssetFile(name: string): Observable<string> {
-    return this.http
-      .get(`${environment.url}?file_name=${name}`)
-      .pipe(switchMap((res: any) => this.fetchImageAsBase64(res.url)));
-  }
-
+  // result: gets the asset in base64 from the presigned url
+  // intput: requires the asset url
+  // output: base64 string of the asset
   fetchImageAsBase64(url: string): Observable<string> {
     return this.http.get(url, { responseType: 'blob' }).pipe(
       switchMap((blob) => {
@@ -125,6 +171,9 @@ export class MediaManagementService {
     );
   }
 
+  // result: merges two images together image1 and image2 are urls presigned/urls/base64
+  // intput: requires two images
+  // output: base64 string of the merged image
   mergeImages(image1: string, image2: string): Observable<string> {
     let scale = 1;
 
@@ -167,13 +216,18 @@ export class MediaManagementService {
     });
   }
 
-  generateHash(file: string): Observable<string> {
-    return this.fetchImageAsBase64(file).pipe(
+  // result: gets the hash of the file
+  // intput: requires the asset url
+  // output: hash of the asset
+  generateHash(asset_url: string): Observable<string> {
+    return this.fetchImageAsBase64(asset_url).pipe(
       map((res) => this.simpleHash(res))
     );
   }
 
   // code from https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781
+  // result: generates a hash from a string 32bit 7 characters long
+  // intput: requires a string, in our case base64 string
   simpleHash(str: string) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -184,6 +238,7 @@ export class MediaManagementService {
     return (hash >>> 0).toString(36).padStart(7, '0');
   }
 
+  // result: helper function for cyrb64hash
   cyrb64(str: string, seed = 0) {
     let h1 = 0xdeadbeef ^ seed,
       h2 = 0x41c6ce57 ^ seed;
@@ -204,6 +259,7 @@ export class MediaManagementService {
 
   // An improved, *insecure* 64-bit hash that's short, fast, and has no dependencies.
   // Output is always 14 characters.
+  // result: generates a hash from a string 64bit 14 characters long
   cyrb64Hash(str: string, seed = 0) {
     const [h2, h1] = this.cyrb64(str, seed);
     return h2.toString(36).padStart(7, '0') + h1.toString(36).padStart(7, '0');

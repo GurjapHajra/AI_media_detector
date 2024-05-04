@@ -3,8 +3,7 @@ import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, catchError, map, switchMap, take, tap } from 'rxjs';
-import { error } from 'console';
+import { Observable, catchError, map, switchMap, take } from 'rxjs';
 
 @Component({
   selector: 'app-media-finder',
@@ -45,27 +44,31 @@ export class MediaFinderComponent {
   ) {}
 
   protected searched() {
-    this.MediaManagementService.getMedia(this.filter).subscribe((res) => {
-      this.store.dispatch(addListAssets({ ListAssets: res }));
-    });
+    this.MediaManagementService.getAssetListFromDb(this.filter).subscribe(
+      (assets) => {
+        this.store.dispatch(addListAssets({ ListAssets: assets }));
+      }
+    );
   }
 
   protected openImage(key: string) {
-    this.MediaManagementService.getMediaUrl(key).subscribe((res) => {
+    this.MediaManagementService.getAssetPreSignUrl(key).subscribe((res) => {
       take(1);
       this.picUrl = res.url;
     });
   }
 
   protected verify(name: string) {
-    this.MediaManagementService.getAssetFile(name).subscribe((res) => {
-      this.mergeImages(res, name);
-      // for testing purposes: get hash code when asking for verification
+    this.MediaManagementService.getBase64FromAssetName(name).subscribe(
+      (res) => {
+        this.mergeImages(res, name);
+        // for testing purposes: get hash code when asking for verification
 
-      // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
-      //   console.log(this.MediaManagementService.simpleHash(res));
-      // });
-    });
+        // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
+        //   console.log(this.MediaManagementService.simpleHash(res));
+        // });
+      }
+    );
   }
 
   protected deleteMedia(name: string) {
@@ -74,10 +77,10 @@ export class MediaFinderComponent {
       .pipe(
         take(1),
         map((res) => {
-          return res.find((item) => item.asset_name === name);
+          return res.find((item) => item.asset_name === name)?.asset_id ?? '';
         }),
-        switchMap((res) => {
-          return this.MediaManagementService.deleteMedia(res?.asset_id ?? '');
+        switchMap((asset_id) => {
+          return this.MediaManagementService.deleteMedia(asset_id);
         }),
         map(() => {
           this.searched();
@@ -105,8 +108,8 @@ export class MediaFinderComponent {
     //     }
     //   );
     // });
-    this.getImgId(name).subscribe((res) => {
-      this.LogoString(res).subscribe((res) => {
+    this.getAssetId(name).subscribe((id) => {
+      this.joinLogoWithString(id).subscribe((res) => {
         this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
           this.picUrl = res;
         });
@@ -114,7 +117,7 @@ export class MediaFinderComponent {
     });
   }
 
-  protected getImgId(name: string): Observable<string> {
+  protected getAssetId(name: string): Observable<string> {
     return this.store.select(getListAssets).pipe(
       map((res) => {
         return res.find((item) => item.asset_name === name)?.asset_id ?? '';
@@ -122,7 +125,7 @@ export class MediaFinderComponent {
     );
   }
 
-  protected LogoString(hash: string): Observable<string> {
+  protected joinLogoWithString(hash: string): Observable<string> {
     let img = new Image();
     img.src = String.raw`../../../assets/codeLogo.png`;
 
