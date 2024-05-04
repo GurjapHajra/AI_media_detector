@@ -138,37 +138,11 @@ paths:
         "400":
           description: missing asset_type or asset_name parameter
 
-  /delete/{asset_id}:
-    post:
-      tags:
-        - MediaService
-      description: Return the table from the DB with page and filter
-      operationId: deleteasset
-      parameters:
-        - name: asset_id
-          in: path
-          description: asset_id to delete
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/delete_return"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/delete_return"
-        "404":
-          description: couldn't find asset_id in DB or S3
-
   /db/{asset_id}{asset_name}:
     post:
       tags:
         - MediaService
-      description: Return the table from the DB with page and filter
+      description: updates the DB by adding the asset_id and asset_name. asset must be uploaded to s3 first
       operationId: updateDB
       parameters:
         - name: asset_id
@@ -193,6 +167,32 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/DB_update_return"
+        "404":
+          description: couldn't find asset_id in DB or S3
+
+  /delete/{asset_id}:
+    post:
+      tags:
+        - MediaService
+      description: deletes asset from s3 and Db
+      operationId: deleteasset
+      parameters:
+        - name: asset_id
+          in: path
+          description: asset_id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/delete_return"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/delete_return"
         "404":
           description: couldn't find asset_id in DB or S3
 
