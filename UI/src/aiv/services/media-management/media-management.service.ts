@@ -28,12 +28,17 @@ import { md5 } from 'js-md5';
 export class MediaManagementService {
   constructor(private http: HttpClient) {}
 
-  //upload multiple media files
+  // result: upload multiple media files
+  // intput: requires a list of AssetFile
+  // output: god knows
   uploadMultipleAssets(assets: AssetFile[]): Observable<string> {
     console.log(':::Uploading all', assets);
     return from(assets).pipe(switchMap((asset) => this.uploalAsset(asset)));
   }
 
+  // result: upload a media file
+  // intput: requires a AssetFile
+  // output: god knows
   uploalAsset(media: AssetFile): Observable<string> {
     console.log(':::Uploading', media);
 
@@ -85,6 +90,9 @@ export class MediaManagementService {
     // });
   }
 
+  // result: updates the database with the file name and file id using it's S3 info
+  // intput: requires a file name and file id
+  // output: god knows
   updateDB(file_name: string, file_id: string) {
     return this.http.post(
       `${environment.url}db?asset_id=${file_id}&asset_name=${file_name}`,
@@ -92,6 +100,9 @@ export class MediaManagementService {
     );
   }
 
+  // result: gets the list of media files from the database (20 per page)
+  // intput: requires a filter string and page number
+  // output: list of media files
   getAssetListFromDb(
     filter?: string,
     page?: number
@@ -110,6 +121,9 @@ export class MediaManagementService {
       );
   }
 
+  // result: deletes the asset from the database and S3 bucket
+  // intput: requires a file id
+  // output: god knows
   deleteMedia(id: string) {
     return this.http.post(`${environment.url}delete?asset_id=${id}`, null).pipe(
       map((res) => {
@@ -118,6 +132,9 @@ export class MediaManagementService {
     );
   }
 
+  // result: gets the prsigned url to post assets too
+  // intput: requires the asset name and asset type
+  // output: presigned url, with the fields required to post the asset
   getPostUnsignUrl(
     asset_name: string,
     asset_type: string
@@ -129,6 +146,9 @@ export class MediaManagementService {
       .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
   }
 
+  // result: gets the presigned url to get the asset
+  // intput: requires the asset name
+  // output: presigned url
   getAssetPreSignUrl(name: string): Observable<{ url: string }> {
     return this.http
       .get(`${environment.url}get_asset_url?asset_name=${name}`)
@@ -139,12 +159,18 @@ export class MediaManagementService {
       );
   }
 
+  // result: gets the asset in base64 from the presigned url
+  // intput: requires the asset name
+  // output: base64 string of the asset
   getBase64FromAssetName(name: string): Observable<string> {
     return this.getAssetPreSignUrl(name).pipe(
       switchMap((res: any) => this.fetchImageAsBase64(res.url))
     );
   }
 
+  // result: gets the asset in base64 from the presigned url
+  // intput: requires the asset url
+  // output: base64 string of the asset
   fetchImageAsBase64(url: string): Observable<string> {
     return this.http.get(url, { responseType: 'blob' }).pipe(
       switchMap((blob) => {
@@ -158,6 +184,9 @@ export class MediaManagementService {
     );
   }
 
+  // result: merges two images together image1 and image2 are urls presigned/urls/base64
+  // intput: requires two images
+  // output: base64 string of the merged image
   mergeImages(image1: string, image2: string): Observable<string> {
     let scale = 1;
 
@@ -200,13 +229,18 @@ export class MediaManagementService {
     });
   }
 
-  generateHash(file: string): Observable<string> {
-    return this.fetchImageAsBase64(file).pipe(
+  // result: gets the hash of the file
+  // intput: requires the asset url
+  // output: hash of the asset
+  generateHash(asset_url: string): Observable<string> {
+    return this.fetchImageAsBase64(asset_url).pipe(
       map((res) => this.simpleHash(res))
     );
   }
 
   // code from https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781
+  // result: generates a hash from a string 32bit 7 characters long
+  // intput: requires a string, in our case base64 string
   simpleHash(str: string) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -217,6 +251,7 @@ export class MediaManagementService {
     return (hash >>> 0).toString(36).padStart(7, '0');
   }
 
+  // result: helper function for cyrb64hash
   cyrb64(str: string, seed = 0) {
     let h1 = 0xdeadbeef ^ seed,
       h2 = 0x41c6ce57 ^ seed;
@@ -237,6 +272,7 @@ export class MediaManagementService {
 
   // An improved, *insecure* 64-bit hash that's short, fast, and has no dependencies.
   // Output is always 14 characters.
+  // result: generates a hash from a string 64bit 14 characters long
   cyrb64Hash(str: string, seed = 0) {
     const [h2, h1] = this.cyrb64(str, seed);
     return h2.toString(36).padStart(7, '0') + h1.toString(36).padStart(7, '0');
