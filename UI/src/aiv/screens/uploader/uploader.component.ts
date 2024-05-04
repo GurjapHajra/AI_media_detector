@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { AssetFile } from 'src/aiv/models/asset-file';
 import * as fromAssetStore from '@aiv/store/assets-store/asset-store.actions';
 import { assetFeature } from '@aiv/store/assets-store/asset-store.reducer';
-import { Observable, map, switchMap, take, tap } from 'rxjs';
+import { Observable, switchMap, tap } from 'rxjs';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 
 @Component({

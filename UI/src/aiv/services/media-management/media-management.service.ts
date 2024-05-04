@@ -2,26 +2,13 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
-import {
-  Observable,
-  catchError,
-  from,
-  map,
-  of,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
   PostUnsignUrlResponse,
 } from '@aiv/models/api-reponse-types';
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
-import { DomSanitizer } from '@angular/platform-browser';
-
-import { md5 } from 'js-md5';
-
 @Injectable({
   providedIn: 'root',
 })

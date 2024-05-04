@@ -3,8 +3,7 @@ import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, catchError, map, switchMap, take, tap } from 'rxjs';
-import { error } from 'console';
+import { Observable, catchError, map, switchMap, take } from 'rxjs';
 
 @Component({
   selector: 'app-media-finder',
