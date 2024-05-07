@@ -29,9 +29,6 @@ import { MatButton } from '@angular/material/button';
 export class SignUpFormComponent {
   constructor() {
     Amplify.configure(awsmobile);
-    this.profileForm.valueChanges.subscribe((value) => {
-      console.log('valueChanges', value);
-    });
   }
 
   profileForm: FormGroup = new FormGroup(

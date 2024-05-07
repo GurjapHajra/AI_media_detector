@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 import { HeaderComponent } from './components/header/header.component';
+import { authFeature } from './store/auth-store/auth-store.reducer';
 
 @NgModule({
   declarations: [AppComponent],
@@ -29,6 +30,7 @@ import { HeaderComponent } from './components/header/header.component';
       traceLimit: 75, // maximum stack trace frames to be stored (in case trace option was provided as true)
       connectInZone: true, // If set to true, the connection is established within the Angular zone
     }),
+    StoreModule.forFeature(authFeature.name, authFeature.reducer),
     HeaderComponent,
   ],
 })
