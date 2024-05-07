@@ -8,17 +8,15 @@ import { Observable, catchError, map, switchMap, take } from 'rxjs';
 @Component({
   selector: 'app-public-search',
   templateUrl: './public-search.component.html',
-  styleUrl: './public-search.component.scss'
+  styleUrl: './public-search.component.scss',
 })
 export class PublicSearchComponent {
   protected picUrl: string = '';
-  protected filter: string = '';
+  protected assetid: string = '';
 
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
       return assets.map((item) => {
-        let date = new Date(item.last_modified).toLocaleDateString();
-
         return {
           name: item.asset_name,
         };
@@ -26,22 +24,17 @@ export class PublicSearchComponent {
     })
   );
 
-  displayedColumns: string[] = [
-    'name',
-    'view',
-  ];
+  displayedColumns: string[] = ['name', 'view'];
 
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
-  ) { }
+  ) {}
 
   protected searched() {
-    this.MediaManagementService.getAssetListFromDb(this.filter).subscribe(
-      (assets) => {
-        this.store.dispatch(addListAssets({ ListAssets: assets }));
-      }
-    );
+    this.MediaManagementService.getAssetById(this.assetid).subscribe((res) => {
+      console.log(res);
+    });
   }
 
   protected openImage(key: string) {
