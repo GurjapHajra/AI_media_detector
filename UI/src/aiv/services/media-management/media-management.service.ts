@@ -17,7 +17,7 @@ import { md5 } from 'js-md5';
   providedIn: 'root',
 })
 export class MediaManagementService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   uploadMediaFiles(assets: AssetFile[]) {
     assets.forEach((asset) => {

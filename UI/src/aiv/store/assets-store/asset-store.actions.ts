@@ -1,7 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { AssetFile } from 'src/aiv/models/asset-file';
 
-
 export const addAsset = createAction(
   '[Asset Store] Add Asset',
   props<{ assets: AssetFile[] }>()
@@ -13,4 +12,3 @@ export const removeAsset = createAction(
 );
 
 export const reset = createAction('[Asset Store] Reset');
-export const updateUser = createAction('[User] Update User', props<{ name: string, email: string }>());

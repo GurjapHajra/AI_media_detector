@@ -40,7 +40,7 @@ export class MediaFinderComponent {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
-  ) {}
+  ) { }
 
   protected searched() {
     this.MediaManagementService.getMedia(this.filter).subscribe((res) => {
