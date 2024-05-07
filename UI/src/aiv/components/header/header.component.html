@@ -1,11 +1,22 @@
 <img src="../../../assets/logo.png" (click)="onHomeClick()" />
 
-<div class="header-links">
-  <button mat-flat-button color="primary" (click)="createAccount()">
-    <mat-icon>person_add</mat-icon>
-  </button>
 
-  <button mat-flat-button color="primary" (click)="signout.emit()">
-    <mat-icon>logout</mat-icon>
-  </button>
-</div>
+<ng-template [ngIf]="(loggedIn | async)">
+  <div class="header-links">
+    <button mat-flat-button color="primary" (click)="createAccount()">
+      <mat-icon>person_add</mat-icon>
+    </button>
+
+    <button mat-flat-button color="primary" (click)="signout.emit()">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template [ngIf]="!(loggedIn | async)">
+  <div class="header-links">
+    <button mat-flat-button color="primary" (click)="signin.emit()">
+      <mat-icon>login</mat-icon>
+    </button>
+  </div>
+</ng-template>
