@@ -8,3 +8,7 @@ const getAuthState = createFeatureSelector<UserStoreState>(AUTH_STATE_NAME);
 export const getUser = createSelector(getAuthState, (state) => {
   return state;
 });
+
+export const isLoggedIn = createSelector(getAuthState, (state) => {
+  return state.loggedIn;
+});

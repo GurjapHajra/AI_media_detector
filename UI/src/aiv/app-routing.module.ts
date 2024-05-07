@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './screens/home/home.component';
+import { AuthGuard } from './services/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -8,6 +9,7 @@ const routes: Routes = [
     component: HomeComponent,
     loadChildren: () =>
       import('./screens/home/home.module').then((m) => m.HomeModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'uploader',
@@ -15,6 +17,7 @@ const routes: Routes = [
       import('./screens/uploader/uploader.module').then(
         (m) => m.UploaderModule
       ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'media-finder',
@@ -22,25 +25,13 @@ const routes: Routes = [
       import('./screens/media-finder/media-finder.module').then(
         (m) => m.MediaFinderModule
       ),
-  },
-  {
-    path: 'media-finder',
-    loadChildren: () =>
-      import('./screens/media-finder/media-finder.module').then(
-        (m) => m.MediaFinderModule
-      ),
-  },
-  {
-    path: 'uploader',
-    loadChildren: () =>
-      import('./screens/uploader/uploader.module').then(
-        (m) => m.UploaderModule
-      ),
+    canActivate: [AuthGuard],
   },
   {
     path: 'sign-up',
     loadChildren: () =>
       import('./screens/sign-up/sign-up.module').then((m) => m.SignUpModule),
+    canActivate: [AuthGuard],
   },
   {
     path: 'login',
