@@ -8,8 +8,8 @@ const _reducer = createReducer(
   on(signInUser, (state, { user }): UserStoreState => {
     return {
       ...state,
-      userId: user.userId,
-      username: user.username,
+      userId: user?.userId,
+      username: user?.username,
       loggedIn: true,
     };
   }),
