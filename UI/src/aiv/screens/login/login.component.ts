@@ -9,6 +9,7 @@ import awsmobile from 'src/aws-exports';
 import { Store } from '@ngrx/store';
 
 import * as fromAuth from '@aiv/store/auth-store/auth-store.actions';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -45,6 +46,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       })
       .catch((error) => {
+        Swal.fire("Username or the Password is incorrect");
         console.error(error);
       });
   }

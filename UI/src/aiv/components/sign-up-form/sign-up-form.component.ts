@@ -12,6 +12,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'aiv-sign-up',
@@ -68,10 +69,10 @@ export class SignUpFormComponent {
       },
     }).then(
       (result) => {
-        alert('Sign up successful!');
+        Swal.fire("Sign up successful!");
       },
       (error) => {
-        console.log('Error signing up:', error);
+        Swal.fire("Error signing up:", error);
       }
     );
   }
