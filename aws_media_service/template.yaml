@@ -128,6 +128,24 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref MediaServiceDynamoDBTable
 
+  GetAssetByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.db_item_by_name_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /db_item_by_id
+            Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+
   DBUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:

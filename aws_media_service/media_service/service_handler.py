@@ -329,6 +329,47 @@ def db_reader():
     return response["Items"]
 
 
+def db_item_by_name_handler(event, context):  # pylint: disable=unused-argument
+    """returns the asset from the database based on the asset_name"""
+
+    if (
+        not isinstance(event["queryStringParameters"], dict)
+        or "asset_id" not in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "asset parameter not found",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    asset = db_item_by_id(event["queryStringParameters"]["asset_id"])
+
+    if isinstance(asset, Exception) or asset is Exception:
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "asset_id not found in database",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "res": asset,
+            }
+        ),
+        "headers": CORS_HEADERS,
+    }
+
+
 def db_item_by_id(asset_id):
     """returns the asset from the database based on the asset_id"""
     db_client = boto3.client("dynamodb")
