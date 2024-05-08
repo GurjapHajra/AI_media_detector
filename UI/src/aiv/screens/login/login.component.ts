@@ -46,7 +46,12 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       })
       .catch((error) => {
-        Swal.fire("Username or the Password is incorrect");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong!",
+          footer: 'Please check your Username and Password'
+        });
         console.error(error);
       });
   }

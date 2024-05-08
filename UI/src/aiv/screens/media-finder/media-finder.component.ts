@@ -4,6 +4,8 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { Observable, catchError, map, switchMap, take } from 'rxjs';
+import Swal from 'sweetalert2';
+import { error } from 'console';
 
 @Component({
   selector: 'app-media-finder',
@@ -41,12 +43,20 @@ export class MediaFinderComponent {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
-  ) {}
+  ) { }
 
   protected searched() {
     this.MediaManagementService.getAssetListFromDb(this.filter).subscribe(
       (assets) => {
         this.store.dispatch(addListAssets({ ListAssets: assets }));
+      },
+      (error) => {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong!",
+          footer: error
+        });
       }
     );
   }
@@ -67,6 +77,13 @@ export class MediaFinderComponent {
         // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
         //   console.log(this.MediaManagementService.simpleHash(res));
         // });
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "The Media has been verified",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
     );
   }
@@ -92,6 +109,13 @@ export class MediaFinderComponent {
         })
       )
       .subscribe();
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "The Media has been deleted",
+      showConfirmButton: false,
+      timer: 1500
+    });
   }
 
   protected mergeImages(url: string, name: string) {

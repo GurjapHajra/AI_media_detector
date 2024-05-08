@@ -72,7 +72,12 @@ export class SignUpFormComponent {
         Swal.fire("Sign up successful!");
       },
       (error) => {
-        Swal.fire("Error signing up:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Error signing up",
+          footer: error
+        });
       }
     );
   }
