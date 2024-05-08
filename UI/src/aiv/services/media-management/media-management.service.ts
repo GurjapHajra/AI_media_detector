@@ -108,6 +108,14 @@ export class MediaManagementService {
       );
   }
 
+  getAssetById(id: string): Observable<GetMediaListResponse> {
+    return this.http.get(`${environment.url}db_item_by_id?asset_id=${id}`).pipe(
+      map((res: any) => {
+        return FlattenToGetMediaListResponse(res['res']);
+      })
+    );
+  }
+
   // result: deletes the asset from the database and S3 bucket
   // intput: requires a file id
   // output: god knows

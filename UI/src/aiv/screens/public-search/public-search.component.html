@@ -1,40 +1,48 @@
-<h1>To View all features please login</h1>
+<h1>Asset Search</h1>
 <div class="search">
   <mat-form-field subscriptSizing="dynamic">
-    <mat-label>Asset Name</mat-label>
-    <input
-      matInput
-      type="text"
-      [(ngModel)]="filter"
-      (keydown.enter)="searched()"
-    />
+    <mat-label>Asset Id</mat-label>
+    <input matInput type="text" [(ngModel)]="assetid" (keydown.enter)="searched()" />
   </mat-form-field>
   <button mat-flat-button (click)="searched()">Search</button>
 </div>
 
-<ng-container *ngIf="(searchResult | async)?.length">
-  <table mat-table [dataSource]="searchResult">
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell color="primary" *matCellDef="let element">
-        {{ element.name }}
-      </td>
-    </ng-container>
+<div class="results">
+  <ng-container *ngIf="searchResults">
+    <div class="table">
+      <table mat-table [dataSource]="searchResults">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell color="primary" *matCellDef="let element">
+            {{ element.name }}
+          </td>
+        </ng-container>
 
-    <!-- verify Column -->
-    <ng-container matColumnDef="view">
-      <th mat-header-cell *matHeaderCellDef>View</th>
-      <td mat-cell *matCellDef="let element" (click)="openImage(element.name)">
-        <button mat-flat-button color="primary">view</button>
-      </td>
-    </ng-container>
+        <!-- View Column -->
+        <ng-container matColumnDef="value">
+          <th mat-header-cell *matHeaderCellDef>Value</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.value }}
+          </td>
+        </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-</ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
 
-<ng-container *ngIf="picUrl">
-  <img [src]="picUrl" alt="Image" />
-</ng-container>
+      <div class="actions">
+        <button mat-flat-button (click)="openImage()">View</button>
+        <button mat-flat-button (click)="mergeImages()">verify</button>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <ng-container *ngIf="picUrl">
+    <div class="imageOutput">
+      <img [src]="picUrl" alt="Image" />
+      <button mat-flat-button (click)="download()">Download</button>
+    </div>
+  </ng-container>
+</div>
