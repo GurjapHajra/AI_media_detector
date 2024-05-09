@@ -16,6 +16,10 @@ export class MediaFinderComponent {
 
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
+      if (!assets) {
+        return [];
+      }
+
       return assets.map((item) => {
         let date = new Date(item.last_modified).toLocaleDateString();
 
