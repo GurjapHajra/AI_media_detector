@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, map, take } from 'rxjs';
+import { Observable, map, of, take } from 'rxjs';
 import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
 
 @Component({
@@ -15,6 +15,7 @@ export class PublicSearchComponent implements OnInit {
   protected assetid: string = '';
 
   protected searchResults: any[] | undefined;
+  protected searchResultsObject: GetMediaListResponse | undefined;
 
   private searchParams = new URLSearchParams(window.location.search);
 
@@ -33,8 +34,10 @@ export class PublicSearchComponent implements OnInit {
   }
 
   protected searched() {
-    this.MediaManagementService.getAssetById(this.assetid).subscribe(
-      (asset) => {
+    this.MediaManagementService.getAssetById(this.assetid)
+      .pipe(take(1))
+      .subscribe((asset) => {
+        this.searchResultsObject = asset;
         let date = new Date(asset.last_modified).toLocaleDateString();
 
         this.searchResults = [
@@ -48,17 +51,17 @@ export class PublicSearchComponent implements OnInit {
           { name: 'p-hash', value: asset.p_hash },
           { name: 'verified', value: asset.verified },
         ];
-      }
-    );
+      });
   }
 
   protected openImage() {
     this.MediaManagementService.getAssetPreSignUrl(
-      this.searchResults?.find((item) => item.name === 'name')?.value ?? ''
-    ).subscribe((res) => {
-      take(1);
-      this.picUrl = res.url;
-    });
+      this.searchResultsObject?.asset_name ?? ''
+    )
+      .pipe(take(1))
+      .subscribe((res) => {
+        this.picUrl = res.url;
+      });
   }
 
   protected mergeImages() {
@@ -75,19 +78,23 @@ export class PublicSearchComponent implements OnInit {
     //     }
     //   );
     // });
-    this.MediaManagementService.getAssetPreSignUrl(
-      this.searchResults?.find((item) => item.name === 'name')?.value ?? ''
-    ).subscribe((url) => {
-      this.joinLogoWithString(
-        this.searchResults?.find((item) => item.name === 'id')?.value ?? ''
-      ).subscribe((res) => {
-        this.MediaManagementService.mergeImages(url.url, res).subscribe(
-          (res) => {
-            this.picUrl = res;
-          }
-        );
-      });
-    });
+    if (this.searchResultsObject) {
+      this.MediaManagementService.getAssetPreSignUrl(
+        this.searchResultsObject.asset_name
+      )
+        .pipe(take(1))
+        .subscribe((url) => {
+          this.joinLogoWithString(this.searchResultsObject?.asset_id ?? '')
+            .pipe(take(1))
+            .subscribe((res) => {
+              this.MediaManagementService.mergeImages(url.url, res).subscribe(
+                (res) => {
+                  this.picUrl = res;
+                }
+              );
+            });
+        });
+    }
   }
 
   protected getAssetId(name: string): Observable<string> {

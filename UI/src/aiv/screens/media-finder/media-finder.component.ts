@@ -44,31 +44,33 @@ export class MediaFinderComponent {
   ) {}
 
   protected searched() {
-    this.MediaManagementService.getAssetListFromDb(this.filter).subscribe(
-      (assets) => {
+    this.MediaManagementService.getAssetListFromDb(this.filter)
+      .pipe(take(1))
+      .subscribe((assets) => {
         this.store.dispatch(addListAssets({ ListAssets: assets }));
-      }
-    );
+      });
   }
 
   protected openImage(key: string) {
-    this.MediaManagementService.getAssetPreSignUrl(key).subscribe((res) => {
-      take(1);
-      this.picUrl = res.url;
-    });
+    this.MediaManagementService.getAssetPreSignUrl(key)
+      .pipe(take(1))
+      .subscribe((res) => {
+        take(1);
+        this.picUrl = res.url;
+      });
   }
 
   protected verify(name: string) {
-    this.MediaManagementService.getBase64FromAssetName(name).subscribe(
-      (res) => {
+    this.MediaManagementService.getBase64FromAssetName(name)
+      .pipe(take(1))
+      .subscribe((res) => {
         this.mergeImages(res, name);
         // for testing purposes: get hash code when asking for verification
 
         // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
         //   console.log(this.MediaManagementService.simpleHash(res));
         // });
-      }
-    );
+      });
   }
 
   protected deleteMedia(name: string) {
@@ -110,9 +112,11 @@ export class MediaFinderComponent {
     // });
     this.getAssetId(name).subscribe((id) => {
       this.joinLogoWithString(id).subscribe((res) => {
-        this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
-          this.picUrl = res;
-        });
+        this.MediaManagementService.mergeImages(url, res)
+          .pipe(take(1))
+          .subscribe((res) => {
+            this.picUrl = res;
+          });
       });
     });
   }
