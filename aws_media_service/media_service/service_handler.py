@@ -121,6 +121,17 @@ def get_upload_url_handler(event, context):  # pylint: disable=unused-argument
     asset_name = event["queryStringParameters"]["asset_name"]
     asset_type = event["queryStringParameters"]["asset_type"]
 
+    if not isinstance(db_item_by_name(asset_name), Exception):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "asset_name already found in database",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
     url = create_presigned_post(object_name=f"{asset_name}", asset_type=f"{asset_type}")
 
     return {
@@ -389,6 +400,35 @@ def db_item_by_id(asset_id):
             TableName=DB_NAME,
             Key={
                 "asset_id": {"S": asset_id},
+                "asset_name": {"S": res_asset["asset_name"]["S"]},
+            },
+        )
+    except Exception as e:  # pylint: disable=broad-except
+        return e
+
+    return response["Item"]
+
+
+def db_item_by_name(asset_name):
+    """returns the asset from the database based on the asset_name"""
+    db_client = boto3.client("dynamodb")
+
+    res_asset = None
+
+    for asset in db_reader():
+        if asset["asset_name"]["S"] == asset_name:
+            res_asset = asset
+            break
+
+    if res_asset is None:
+        return Exception("asset not found in database")
+
+    try:
+        # Get all items in the database
+        response = db_client.get_item(
+            TableName=DB_NAME,
+            Key={
+                "asset_id": {"S": res_asset["asset_id"]["S"]},
                 "asset_name": {"S": res_asset["asset_name"]["S"]},
             },
         )
