@@ -107,8 +107,10 @@ Resources:
             Path: /get_upload_url
             Method: get
       Policies:
-        S3CrudPolicy:
-          BucketName: !Ref MediaServiceS3Bucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+        - S3CrudPolicy:
+            BucketName: !Ref MediaServiceS3Bucket
 
   DBGetFunction:
     Type: AWS::Serverless::Function
