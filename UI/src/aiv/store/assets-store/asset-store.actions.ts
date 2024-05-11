@@ -11,4 +11,16 @@ export const removeAsset = createAction(
   props<{ assetName: string }>()
 );
 
+export const uploadAsset = createAction('[Asset Store] Upload Asset');
+
+export const generateHashAndUpdateDB = createAction(
+  '[Asset Store] Generate Hash from name',
+  props<{ name: string }>()
+);
+
+export const updateDBWithName = createAction(
+  '[Asset Store] Update DB With Name',
+  props<{ name: string; id: string }>()
+);
+
 export const reset = createAction('[Asset Store] Reset');

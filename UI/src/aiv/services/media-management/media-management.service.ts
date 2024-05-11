@@ -53,28 +53,6 @@ export class MediaManagementService {
         return of(err);
       })
     );
-
-    // .subscribe((res: PostUnsignUrlResponse) => {
-    //   formData.append('key', res.fields.key);
-    //   formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
-    //   formData.append(
-    //     'x-amz-security-token',
-    //     res.fields['x-amz-security-token']
-    //   );
-    //   formData.append('policy', res.fields.policy);
-    //   formData.append('signature', res.fields.signature);
-    //   formData.append('file', media.file);
-
-    //   return this.http.post(res.url, formData).subscribe((val) => {
-    //     this.getMediaUrl(res.fields.key).subscribe((url) => {
-    //       this.generateHash(url.url).subscribe((hash) => {
-    //         this.updateDB(media.file.name, hash).subscribe((val) =>
-    //           console.log(':::DB Updated', val)
-    //         );
-    //       });
-    //     });
-    //   });
-    // });
   }
 
   // result: updates the database with the file name and file id using it's S3 info
@@ -227,10 +205,8 @@ export class MediaManagementService {
   // result: gets the hash of the file
   // intput: requires the asset url
   // output: hash of the asset
-  generateHash(asset_url: string): Observable<string> {
-    return this.fetchImageAsBase64(asset_url).pipe(
-      map((res) => this.simpleHash(res))
-    );
+  generateHash(res: string): string {
+    return this.simpleHash(res);
   }
 
   // code from https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781
