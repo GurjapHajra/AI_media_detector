@@ -68,12 +68,11 @@ export class AssetStoreEffects {
           reader.readAsDataURL(blob.blob);
         });
       }),
-      map((res) => [
-        this.mediaManagementService.generateHash(res.res),
-        res.name,
-      ]),
-      map(([hash, name]) =>
-        AssetStoreActions.updateDBWithName({ name: name, id: hash })
+      map((res) =>
+        AssetStoreActions.updateDBWithName({
+          name: res.name,
+          id: this.mediaManagementService.generateHash(res.res),
+        })
       ),
       catchError((err) => {
         console.log('3. Error uploading asset', err);

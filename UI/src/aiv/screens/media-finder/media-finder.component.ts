@@ -59,22 +59,15 @@ export class MediaFinderComponent {
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
       .subscribe((res) => {
-        take(1);
         this.picUrl = res.url;
       });
   }
 
   protected verify(name: string) {
+    // getBase64FromAssetName Observable does complete
     this.MediaManagementService.getBase64FromAssetName(name)
       .pipe(take(1))
-      .subscribe((res) => {
-        this.mergeImages(res, name);
-        // for testing purposes: get hash code when asking for verification
-
-        // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
-        //   console.log(this.MediaManagementService.simpleHash(res));
-        // });
-      });
+      .subscribe((res) => this.mergeImages(res, name));
   }
 
   protected deleteMedia(name: string) {
@@ -114,15 +107,18 @@ export class MediaFinderComponent {
     //     }
     //   );
     // });
-    this.getAssetId(name).subscribe((id) => {
-      this.joinLogoWithString(id).subscribe((res) => {
-        this.MediaManagementService.mergeImages(url, res)
-          .pipe(take(1))
-          .subscribe((res) => {
+
+    this.getAssetId(name)
+      .pipe(take(1))
+      .subscribe((id) => {
+        // joinLogoWithString Observable does complete
+        this.joinLogoWithString(id).subscribe((res) => {
+          // mergeImages Observable does complete
+          this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
             this.picUrl = res;
           });
+        });
       });
-    });
   }
 
   protected getAssetId(name: string): Observable<string> {
