@@ -10,7 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { FormsModule } from '@angular/forms';
 import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-store.module';
-import { remoteAssetStoreEffectsModule } from '@aiv/effects/remote-asset-store-effects/remote-asset-store.effect';
+import { remoteAssetStoreEffectsModule } from '@aiv/effects/remote-asset-store-effects/remote-asset-store.module';
 
 @NgModule({
   declarations: [MediaFinderComponent],
