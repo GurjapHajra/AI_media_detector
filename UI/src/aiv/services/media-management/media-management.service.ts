@@ -2,7 +2,7 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
-import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, from, map, of, switchMap, tap } from 'rxjs';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
@@ -53,28 +53,6 @@ export class MediaManagementService {
         return of(err);
       })
     );
-
-    // .subscribe((res: PostUnsignUrlResponse) => {
-    //   formData.append('key', res.fields.key);
-    //   formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
-    //   formData.append(
-    //     'x-amz-security-token',
-    //     res.fields['x-amz-security-token']
-    //   );
-    //   formData.append('policy', res.fields.policy);
-    //   formData.append('signature', res.fields.signature);
-    //   formData.append('file', media.file);
-
-    //   return this.http.post(res.url, formData).subscribe((val) => {
-    //     this.getMediaUrl(res.fields.key).subscribe((url) => {
-    //       this.generateHash(url.url).subscribe((hash) => {
-    //         this.updateDB(media.file.name, hash).subscribe((val) =>
-    //           console.log(':::DB Updated', val)
-    //         );
-    //       });
-    //     });
-    //   });
-    // });
   }
 
   // result: updates the database with the file name and file id using it's S3 info
@@ -104,6 +82,10 @@ export class MediaManagementService {
             return acc;
           }, []);
           return res;
+        }),
+        tap(() => console.log(':::Got all assets')),
+        catchError((err) => {
+          return of(err);
         })
       );
   }
@@ -150,6 +132,11 @@ export class MediaManagementService {
       .pipe(
         map((res: any) => {
           return { url: res['url'] };
+        }),
+        tap(() => console.log(':::Got asset url')),
+        catchError((err) => {
+          console.log(':::Error getting asset url', err);
+          return of({ url: '' });
         })
       );
   }
@@ -157,6 +144,7 @@ export class MediaManagementService {
   // result: gets the asset in base64 from the presigned url
   // intput: requires the asset name
   // output: base64 string of the asset
+  // Observable does resolve
   getBase64FromAssetName(name: string): Observable<string> {
     return this.getAssetPreSignUrl(name).pipe(
       switchMap((res: any) => this.fetchImageAsBase64(res.url))
@@ -182,6 +170,7 @@ export class MediaManagementService {
   // result: merges two images together image1 and image2 are urls presigned/urls/base64
   // intput: requires two images
   // output: base64 string of the merged image
+  // the Observable does complete
   mergeImages(image1: string, image2: string): Observable<string> {
     let scale = 1;
 
@@ -215,6 +204,7 @@ export class MediaManagementService {
             img2.height / scale
           );
           observer.next(canvas.toDataURL());
+          observer.complete();
         };
         img1.setAttribute('crossorigin', 'anonymous');
         img1.src = image1;
@@ -227,10 +217,8 @@ export class MediaManagementService {
   // result: gets the hash of the file
   // intput: requires the asset url
   // output: hash of the asset
-  generateHash(asset_url: string): Observable<string> {
-    return this.fetchImageAsBase64(asset_url).pipe(
-      map((res) => this.simpleHash(res))
-    );
+  generateHash(res: string): string {
+    return this.simpleHash(res);
   }
 
   // code from https://gist.github.com/jlevy/c246006675becc446360a798e2b2d781

@@ -10,7 +10,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular';
 import { HeaderComponent } from './components/header/header.component';
-import { authFeature } from './store/auth-store/auth-store.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { authStoreModule } from './store/auth-store/auth-store.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,7 +21,9 @@ import { authFeature } from './store/auth-store/auth-store.reducer';
     AppRoutingModule,
     BrowserModule,
     HttpClientModule,
+    authStoreModule,
     StoreModule.forRoot({}),
+    EffectsModule.forRoot({}),
     AmplifyAuthenticatorModule,
     StoreDevtoolsModule.instrument({
       maxAge: 25, // Retains last 25 states
@@ -30,7 +33,6 @@ import { authFeature } from './store/auth-store/auth-store.reducer';
       traceLimit: 75, // maximum stack trace frames to be stored (in case trace option was provided as true)
       connectInZone: true, // If set to true, the connection is established within the Angular zone
     }),
-    StoreModule.forFeature(authFeature.name, authFeature.reducer),
     HeaderComponent,
   ],
 })

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
-import { addListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.actions';
+import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions';
+import { Observable, map, take } from 'rxjs';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, catchError, map, switchMap, take } from 'rxjs';
 
 @Component({
   selector: 'app-media-finder',
@@ -51,7 +51,9 @@ export class MediaFinderComponent {
     this.MediaManagementService.getAssetListFromDb(this.filter)
       .pipe(take(1))
       .subscribe((assets) => {
-        this.store.dispatch(addListAssets({ ListAssets: assets }));
+        this.store.dispatch(
+          fromRemoteAssetStore.addListAssets({ ListAssets: assets })
+        );
       });
   }
 
@@ -59,45 +61,19 @@ export class MediaFinderComponent {
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
       .subscribe((res) => {
-        take(1);
         this.picUrl = res.url;
       });
   }
 
   protected verify(name: string) {
+    // getBase64FromAssetName Observable does complete
     this.MediaManagementService.getBase64FromAssetName(name)
       .pipe(take(1))
-      .subscribe((res) => {
-        this.mergeImages(res, name);
-        // for testing purposes: get hash code when asking for verification
-
-        // this.MediaManagementService.fetchImageAsBase64(res).subscribe((res) => {
-        //   console.log(this.MediaManagementService.simpleHash(res));
-        // });
-      });
+      .subscribe((res) => this.mergeImages(res, name));
   }
 
   protected deleteMedia(name: string) {
-    this.store
-      .select(getListAssets)
-      .pipe(
-        take(1),
-        map((res) => {
-          return res.find((item) => item.asset_name === name)?.asset_id ?? '';
-        }),
-        switchMap((asset_id) => {
-          return this.MediaManagementService.deleteMedia(asset_id);
-        }),
-        map(() => {
-          this.searched();
-          alert('Successfully deleted!');
-        }),
-        catchError((err) => {
-          alert('Error: ' + err.error.message);
-          return err;
-        })
-      )
-      .subscribe();
+    this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
   }
 
   protected mergeImages(url: string, name: string) {
@@ -114,15 +90,18 @@ export class MediaFinderComponent {
     //     }
     //   );
     // });
-    this.getAssetId(name).subscribe((id) => {
-      this.joinLogoWithString(id).subscribe((res) => {
-        this.MediaManagementService.mergeImages(url, res)
-          .pipe(take(1))
-          .subscribe((res) => {
+
+    this.getAssetId(name)
+      .pipe(take(1))
+      .subscribe((id) => {
+        // joinLogoWithString Observable does complete
+        this.joinLogoWithString(id).subscribe((res) => {
+          // mergeImages Observable does complete
+          this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
             this.picUrl = res;
           });
+        });
       });
-    });
   }
 
   protected getAssetId(name: string): Observable<string> {

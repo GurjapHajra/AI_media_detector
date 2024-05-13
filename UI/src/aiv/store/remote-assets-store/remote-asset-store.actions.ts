@@ -12,3 +12,12 @@ export const removeAsset = createAction(
 );
 
 export const reset = createAction('[Remote Asset Store] Reset');
+
+export const deleteAsset = createAction(
+  '[Remote Asset Store] Delete Asset',
+  props<{ assetName: string }>()
+);
+
+export const deleteAssetSuccess = createAction(
+  '[Remote Asset Store] Delete Asset Success'
+);
