@@ -69,7 +69,7 @@ export class MediaFinderComponent {
       .pipe(take(1))
       .subscribe((res) => this.mergeImages(res, name));
   }
-
+  // ************** move this to effect **************
   protected deleteMedia(name: string) {
     this.store
       .select(getListAssets)
