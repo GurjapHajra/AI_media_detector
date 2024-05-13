@@ -51,7 +51,9 @@ export class MediaFinderComponent {
     this.MediaManagementService.getAssetListFromDb(this.filter)
       .pipe(take(1))
       .subscribe((assets) => {
-        this.store.dispatch(fromRemoteAssetStore.addListAssets({ ListAssets: assets }));
+        this.store.dispatch(
+          fromRemoteAssetStore.addListAssets({ ListAssets: assets })
+        );
       });
   }
 
@@ -69,7 +71,7 @@ export class MediaFinderComponent {
       .pipe(take(1))
       .subscribe((res) => this.mergeImages(res, name));
   }
-  // ************** move this to effect **************
+
   protected deleteMedia(name: string) {
     this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
   }

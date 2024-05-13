@@ -19,7 +19,6 @@ export class RemoteAssetStoreEffects {
   deleteAsset$ = createEffect(() =>
     this.actions$.pipe(
       ofType(fromRemoteAssetStore.deleteAsset),
-      tap(() => console.log('1')),
       switchMap((props) =>
         this.store.select(getListAssets).pipe(
           take(1),
@@ -30,11 +29,9 @@ export class RemoteAssetStoreEffects {
           )
         )
       ),
-      tap(() => console.log('2')),
       switchMap((id) =>
         this.http.post(`${environment.url}delete?asset_id=${id}`, null)
       ),
-      tap(() => console.log('3')),
       map(() => fromRemoteAssetStore.deleteAssetSuccess()),
       catchError((err) => {
         alert('Error: ' + err.error.message);
