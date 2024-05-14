@@ -284,7 +284,9 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
 
     db_client = boto3.client("dynamodb")
 
-    if not event["queryStringParameters"] or not (
+    username = ""
+
+    if not isinstance(event["queryStringParameters"], dict) or not (
         "asset_id" in event["queryStringParameters"]
         and "asset_name" in event["queryStringParameters"]
     ):
@@ -298,9 +300,23 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
             "headers": CORS_HEADERS,
         }
 
+    if "username" in event["queryStringParameters"]:
+        username = f'{event["queryStringParameters"]["username"]}/'
+
     file_name = event["queryStringParameters"]["asset_name"]
 
-    file_info = get_asset_s3_info(object_name=file_name)
+    file_info = get_asset_s3_info(object_name=username + file_name)
+
+    if isinstance(file_info, Exception):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "file_name not found in S3 bucket",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
 
     data = {
         "asset_id": {"S": event["queryStringParameters"]["asset_id"]},
