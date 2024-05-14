@@ -9,13 +9,19 @@
     display: table;
   }
 
-  .row {
+  .column {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: fit-content;
   }
   
+  input {
+    margin: 10px;
+    color: white;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;

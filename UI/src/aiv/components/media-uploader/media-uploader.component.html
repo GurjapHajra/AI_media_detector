@@ -1,7 +1,8 @@
 <div class="container">
-    <div class="row">
-      <div class="drop-box" corpImgUpload (dropFiles)="onDropFiles($event)">
-        <span class="message">Drop Assets Here</span>
-      </div>
+  <div class="column">
+    <div class="drop-box" corpImgUpload (dropFiles)="onDropFiles($event)">
+      <span class="message">Drop Assets Here</span>
     </div>
+    <input type="file" multiple accept="image/*" (change)="onFileChange($event)" />
   </div>
+</div>
