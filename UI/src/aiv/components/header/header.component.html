@@ -1,9 +1,8 @@
-<img src="../../../assets/logo.png" (click)="onLogoClick()" />
-
-
 <ng-template [ngIf]="(loggedIn | async)">
-  <button mat-flat-button color="primary" (click)="onHomeClick()">
-    <mat-icon>home</mat-icon>
+  <img src="../../../assets/logo.png" (click)="GoToHome()" />
+
+  <button mat-flat-button color="primary" (click)="GoToSeach()">
+    <mat-icon>search</mat-icon>
   </button>
   <div class="header-links">
     <button mat-flat-button color="primary" (click)="createAccount()">
@@ -17,6 +16,8 @@
 </ng-template>
 
 <ng-template [ngIf]="!(loggedIn | async)">
+  <img src="../../../assets/logo.png" (click)="GoToSeach()" />
+
   <div class="header-links">
     <button mat-flat-button color="primary" (click)="signin.emit()">
       <mat-icon>login</mat-icon>

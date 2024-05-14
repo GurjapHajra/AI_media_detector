@@ -22,12 +22,12 @@ export class HeaderComponent {
 
   constructor(private router: Router, private store: Store) {}
 
-  onHomeClick() {
+  GoToHome() {
     this.router.navigate(['/home']);
   }
 
-  onLogoClick() {
-    this.router.navigate(['/']);
+  GoToSeach() {
+    this.router.navigate(['/search']);
   }
 
   createAccount() {
