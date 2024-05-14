@@ -243,19 +243,30 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
 def db_get_handler(event, context):  # pylint: disable=unused-argument
     """returns the assets from the database based on the page number and filter value"""
 
+    if not isinstance(event["queryStringParameters"], dict) or not (
+        "username" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "missing username parameter",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    username = event["queryStringParameters"]["username"]
+
     target_page = (
         0
-        if (
-            not event["queryStringParameters"]
-            or not ("page" in event["queryStringParameters"])
-        )
+        if not "page" in event["queryStringParameters"]
         else int(event["queryStringParameters"]["page"])
     )
 
     filter_value = (
         ""
-        if not event["queryStringParameters"]
-        or not ("filter" in event["queryStringParameters"])
+        if not "filter" in event["queryStringParameters"]
         else event["queryStringParameters"]["filter"]
     )
 
@@ -267,9 +278,12 @@ def db_get_handler(event, context):  # pylint: disable=unused-argument
         TableName=DB_NAME,
         Select="ALL_ATTRIBUTES",
         PaginationConfig={"PageSize": 20},
-        FilterExpression="contains(#asset_name, :asset_name)",
-        ExpressionAttributeNames={"#asset_name": "asset_name"},
-        ExpressionAttributeValues={":asset_name": {"S": filter_value}},
+        FilterExpression="contains(#asset_name, :asset_name) AND #username = :username",
+        ExpressionAttributeNames={"#asset_name": "asset_name", "#username": "username"},
+        ExpressionAttributeValues={
+            ":asset_name": {"S": filter_value},
+            ":username": {"S": username},
+        },
     )
 
     curr_page = 0

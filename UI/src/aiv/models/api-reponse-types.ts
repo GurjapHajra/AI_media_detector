@@ -42,6 +42,7 @@ export interface GetMediaListResponse {
   p_hash: string;
   verified: boolean;
   last_modified: string;
+  username: string;
 }
 
 export function FlattenToGetMediaListResponse(
@@ -58,6 +59,7 @@ export function FlattenToGetMediaListResponse(
       p_hash: object['p_hash']['S'] ?? 'unknown',
       verified: object['verified']['BOOL'] ?? false,
       last_modified: object['last_modified']['S'] ?? 'unknown',
+      username: object['username']['S'] ?? 'unknown',
     };
   } catch (error) {
     console.error("FlattenToGetMediaListResponse: couldn't convert", object);
@@ -71,6 +73,7 @@ export function FlattenToGetMediaListResponse(
       p_hash: 'unknown',
       verified: false,
       last_modified: 'unknown',
+      username: 'unknown',
     };
   }
 }

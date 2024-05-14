@@ -83,22 +83,30 @@ export class MediaManagementService {
     filter?: string,
     page?: number
   ): Observable<GetMediaListResponse[]> {
-    return this.http
-      .get(`${environment.url}/db?page=${page ?? 0}&filter=${filter ?? ''}`)
-      .pipe(
-        map((res: any) => {
-          res = JSON.parse(res['assets']);
-          res = res.reduce((acc: any, ele: any) => {
-            acc.push(FlattenToGetMediaListResponse(ele));
-            return acc;
-          }, []);
-          return res;
-        }),
-        tap(() => console.log(':::Got all assets')),
-        catchError((err) => {
-          return of(err);
-        })
-      );
+    return this.store.select(getUser).pipe(
+      switchMap((user) =>
+        this.http
+          .get(
+            `${environment.url}/db?page=${page ?? 0}&filter=${
+              filter ?? ''
+            }&username=${user.username}`
+          )
+          .pipe(
+            map((res: any) => {
+              res = JSON.parse(res['assets']);
+              res = res.reduce((acc: any, ele: any) => {
+                acc.push(FlattenToGetMediaListResponse(ele));
+                return acc;
+              }, []);
+              return res;
+            }),
+            tap(() => console.log(':::Got all assets')),
+            catchError((err) => {
+              return of(err);
+            })
+          )
+      )
+    );
   }
 
   getAssetById(id: string): Observable<GetMediaListResponse> {

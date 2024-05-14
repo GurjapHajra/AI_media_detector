@@ -8,6 +8,7 @@ import {
   from,
   map,
   of,
+  repeat,
   switchMap,
   take,
   tap,
@@ -34,20 +35,22 @@ export class AssetStoreEffects {
     this.actions$.pipe(
       ofType(AssetStoreActions.uploadAsset),
       tap(() => console.log(':::Uploading Assets')),
-      switchMap(() => this.store.select(assetFeature.selectFiles)),
-      take(1),
+      switchMap(() =>
+        this.store.select(assetFeature.selectFiles).pipe(take(1))
+      ),
       switchMap((assets) => of(...assets)),
       concatLatestFrom(() =>
         this.store.select(getUser).pipe(map((user) => user))
       ),
       switchMap(([asset, user]) =>
-        this.uploadAsset(asset, user.username ?? '')
-      ),
-      map(() => AssetStoreActions.reset()),
-      catchError(() => {
-        console.log('Error uploading ssets');
-        return of(AssetStoreActions.reset());
-      })
+        this.uploadAsset(asset, user.username ?? '').pipe(
+          map(() => AssetStoreActions.reset()),
+          catchError((err) => {
+            console.log('Error uploading assets');
+            return of(AssetStoreActions.reset());
+          })
+        )
+      )
     )
   );
 
@@ -61,9 +64,7 @@ export class AssetStoreEffects {
       switchMap(([props, user]) =>
         this.http
           .get(
-            `${environment.url}get_asset_url?asset_name=${
-              `${user.username}/` + props.name
-            }`
+            `${environment.url}get_asset_url?asset_name=${props.name}&username=${user.username}`
           )
           .pipe(map((res: any) => ({ url: res['url'], name: props.name })))
       ),
@@ -101,7 +102,7 @@ export class AssetStoreEffects {
       concatLatestFrom(() =>
         this.store.select(getUser).pipe(map((user) => user))
       ),
-      exhaustMap(([{ id, name }, user]) =>
+      switchMap(([{ id, name }, user]) =>
         this.http.post(
           `${environment.url}db?asset_id=${id}&asset_name=${name}&username=${user.username}`,
           null
@@ -138,7 +139,7 @@ export class AssetStoreEffects {
           formData.append('file', media.file);
           return res;
         }),
-        exhaustMap((res) => this.http.post(res.url, formData)),
+        switchMap((res) => this.http.post(res.url, formData)),
         map(() =>
           this.store.dispatch(
             AssetStoreActions.generateHashAndUpdateDB({ name: media.file.name })
