@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Actions, ofType } from '@ngrx/effects';
+import { Actions, concatLatestFrom, ofType } from '@ngrx/effects';
 import { createEffect } from '@ngrx/effects'; // Import the createEffect function
 import {
   Observable,
@@ -8,6 +8,7 @@ import {
   from,
   map,
   of,
+  repeat,
   switchMap,
   take,
   tap,
@@ -19,6 +20,7 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { environment } from '@aiv/environment/environment';
+import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
 
 @Injectable()
 export class AssetStoreEffects {
@@ -33,15 +35,22 @@ export class AssetStoreEffects {
     this.actions$.pipe(
       ofType(AssetStoreActions.uploadAsset),
       tap(() => console.log(':::Uploading Assets')),
-      switchMap(() => this.store.select(assetFeature.selectFiles)),
-      take(1),
+      switchMap(() =>
+        this.store.select(assetFeature.selectFiles).pipe(take(1))
+      ),
       switchMap((assets) => of(...assets)),
-      switchMap((asset) => this.uploadAsset(asset)),
-      map(() => AssetStoreActions.reset()),
-      catchError(() => {
-        console.log('Error uploading ssets');
-        return of(AssetStoreActions.reset());
-      })
+      concatLatestFrom(() =>
+        this.store.select(getUser).pipe(map((user) => user))
+      ),
+      switchMap(([asset, user]) =>
+        this.uploadAsset(asset, user.username ?? '').pipe(
+          map(() => AssetStoreActions.reset()),
+          catchError((err) => {
+            console.log('Error uploading assets');
+            return of(AssetStoreActions.reset());
+          })
+        )
+      )
     )
   );
 
@@ -49,9 +58,14 @@ export class AssetStoreEffects {
     this.actions$.pipe(
       ofType(AssetStoreActions.generateHashAndUpdateDB),
       tap((name) => console.log(':::generating hash from name', name)),
-      switchMap((props) =>
+      concatLatestFrom(() =>
+        this.store.select(getUser).pipe(map((user) => user))
+      ),
+      switchMap(([props, user]) =>
         this.http
-          .get(`${environment.url}get_asset_url?asset_name=${props.name}`)
+          .get(
+            `${environment.url}get_asset_url?asset_name=${props.name}&username=${user.username}`
+          )
           .pipe(map((res: any) => ({ url: res['url'], name: props.name })))
       ),
       exhaustMap((url) =>
@@ -85,9 +99,12 @@ export class AssetStoreEffects {
     this.actions$.pipe(
       ofType(AssetStoreActions.updateDBWithName),
       tap(({ name, id }) => console.log(':::updateing db', name, id)),
-      exhaustMap(({ name, id }) =>
+      concatLatestFrom(() =>
+        this.store.select(getUser).pipe(map((user) => user))
+      ),
+      switchMap(([{ id, name }, user]) =>
         this.http.post(
-          `${environment.url}db?asset_id=${id}&asset_name=${name}`,
+          `${environment.url}db?asset_id=${id}&asset_name=${name}&username=${user.username}`,
           null
         )
       ),
@@ -102,13 +119,13 @@ export class AssetStoreEffects {
   // result: upload a media file
   // intput: requires a AssetFile
   // output: god knows
-  uploadAsset(media: AssetFile): Observable<string> {
+  uploadAsset(media: AssetFile, username: string): Observable<string> {
     console.log(':::Uploading', media);
 
     const formData = new FormData();
 
     return this.mediaManagementService
-      .getPostUnsignUrl(media.file.name, media.file.type)
+      .getPostUnsignUrl(`${username}/` + media.file.name, media.file.type)
       .pipe(
         map((res) => {
           formData.append('key', res.fields.key);
@@ -122,7 +139,7 @@ export class AssetStoreEffects {
           formData.append('file', media.file);
           return res;
         }),
-        exhaustMap((res) => this.http.post(res.url, formData)),
+        switchMap((res) => this.http.post(res.url, formData)),
         map(() =>
           this.store.dispatch(
             AssetStoreActions.generateHashAndUpdateDB({ name: media.file.name })

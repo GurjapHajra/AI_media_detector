@@ -130,4 +130,11 @@ export class MediaFinderComponent {
       };
     });
   }
+
+  protected download() {
+    var a = document.createElement('a'); //Create <a>
+    a.href = this.picUrl; //Image Base64 Goes here
+    a.download = 'image'; //File name Here
+    a.click(); //Downloaded file
+  }
 }

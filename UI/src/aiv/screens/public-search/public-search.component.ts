@@ -41,6 +41,7 @@ export class PublicSearchComponent implements OnInit {
         let date = new Date(asset.last_modified).toLocaleDateString();
 
         this.searchResults = [
+          { name: 'username', value: asset.username },
           { name: 'id', value: asset.asset_id },
           { name: 'name', value: asset.asset_name },
           { name: 'type', value: asset.asset_type },
