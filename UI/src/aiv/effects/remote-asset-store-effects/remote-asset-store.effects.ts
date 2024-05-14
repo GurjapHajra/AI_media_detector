@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Actions, ofType } from '@ngrx/effects';
-import { createEffect } from '@ngrx/effects'; // Import the createEffect function
+import { Actions, ofType, createEffect, concatLatestFrom } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions'; // Import the remote-asset-store actions
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { catchError, map, of, switchMap, take, tap } from 'rxjs';
+import { catchError, map, of, switchMap, take } from 'rxjs';
 import { environment } from '@aiv/environment/environment';
+import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
 
 @Injectable()
 export class RemoteAssetStoreEffects {
@@ -29,8 +29,14 @@ export class RemoteAssetStoreEffects {
           )
         )
       ),
-      switchMap((id) =>
-        this.http.post(`${environment.url}delete?asset_id=${id}`, null)
+      concatLatestFrom(() =>
+        this.store.select(getUser).pipe(map((user) => user))
+      ),
+      switchMap(([id, user]) =>
+        this.http.post(
+          `${environment.url}delete?asset_id=${id}&username=${user.username}`,
+          null
+        )
       ),
       map(() => fromRemoteAssetStore.deleteAssetSuccess()),
       catchError((err) => {

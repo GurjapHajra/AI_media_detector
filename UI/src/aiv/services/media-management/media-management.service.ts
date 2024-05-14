@@ -2,18 +2,29 @@ import { AssetFile } from '@aiv/models/asset-file';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '@aiv/environment/environment';
-import { Observable, catchError, from, map, of, switchMap, tap } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  exhaustMap,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from 'rxjs';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
   PostUnsignUrlResponse,
 } from '@aiv/models/api-reponse-types';
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
+import { Store } from '@ngrx/store';
+import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
 @Injectable({
   providedIn: 'root',
 })
 export class MediaManagementService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private store: Store) {}
 
   // result: upload multiple media files
   // intput: requires a list of AssetFile
@@ -127,18 +138,20 @@ export class MediaManagementService {
   // intput: requires the asset name
   // output: presigned url
   getAssetPreSignUrl(name: string): Observable<{ url: string }> {
-    return this.http
-      .get(`${environment.url}get_asset_url?asset_name=${name}`)
-      .pipe(
-        map((res: any) => {
-          return { url: res['url'] };
-        }),
-        tap(() => console.log(':::Got asset url')),
-        catchError((err) => {
-          console.log(':::Error getting asset url', err);
-          return of({ url: '' });
-        })
-      );
+    return this.store.select(getUser).pipe(
+      tap((user) => console.log(':::Got asset url', user)),
+      exhaustMap((user) =>
+        this.http.get(
+          `${environment.url}get_asset_url?asset_name=${name}&username=${user.username}`
+        )
+      ),
+      map((res: any) => ({ url: res['url'] })),
+      tap(() => console.log(':::Got asset url')),
+      catchError((err) => {
+        console.log(':::Error getting asset url', err);
+        return of({ url: '' });
+      })
+    );
   }
 
   // result: gets the asset in base64 from the presigned url

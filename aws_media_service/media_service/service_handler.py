@@ -21,9 +21,14 @@ CORS_HEADERS = {
 def get_asset_url_handler(event, context):  # pylint: disable=unused-argument
     """returns the url of the asset"""
     if isinstance(event["queryStringParameters"], dict):
-        if "asset_name" in event["queryStringParameters"]:
+        if (
+            "asset_name" in event["queryStringParameters"]
+            and "username" in event["queryStringParameters"]
+        ):
             asset_name = event["queryStringParameters"]["asset_name"]
-            url = get_asset_url(object_name=asset_name)
+            username = event["queryStringParameters"]["username"]
+
+            url = get_asset_url(object_name=f"{username}/{asset_name}")
 
             if isinstance(url, Exception):
                 return {
@@ -49,7 +54,7 @@ def get_asset_url_handler(event, context):  # pylint: disable=unused-argument
         "statusCode": 400,
         "body": json.dumps(
             {
-                "error": "missing file_name parameter",
+                "error": "missing file_name or username parameter",
             }
         ),
         "headers": CORS_HEADERS,
@@ -150,8 +155,19 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
     """delete the asset from the s3 bucket and database given the asset_id"""
 
     if not isinstance(event["queryStringParameters"], dict) or not (
-        "asset_id" in event["queryStringParameters"]
+        "username" in event["queryStringParameters"]
     ):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "missing username parameter",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+    username = event["queryStringParameters"]["username"]
+    if not "asset_id" in event["queryStringParameters"]:
         return {
             "statusCode": 404,
             "body": json.dumps(
@@ -177,7 +193,9 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
             "headers": CORS_HEADERS,
         }
 
-    if isinstance(get_asset_s3_info(object_name=asset["asset_name"]["S"]), Exception):
+    s3_name = f"{username}/{asset['asset_name']['S']}"
+
+    if isinstance(get_asset_s3_info(object_name=s3_name), Exception):
         return {
             "statusCode": 404,
             "body": json.dumps(
@@ -199,7 +217,7 @@ def delete_handler(event, context):  # pylint: disable=unused-argument
         )
 
         s3_client = boto3.client("s3")
-        s3_client.delete_object(Bucket=BUCKET_NAME, Key=asset["asset_name"]["S"])
+        s3_client.delete_object(Bucket=BUCKET_NAME, Key=s3_name)
     except Exception as e:  # pylint: disable=broad-except
         logging.error(e)
         return {
@@ -301,11 +319,11 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
         }
 
     if "username" in event["queryStringParameters"]:
-        username = f'{event["queryStringParameters"]["username"]}/'
+        username = f'{event["queryStringParameters"]["username"]}'
 
     file_name = event["queryStringParameters"]["asset_name"]
 
-    file_info = get_asset_s3_info(object_name=username + file_name)
+    file_info = get_asset_s3_info(object_name=f"{username}/{file_name}")
 
     if isinstance(file_info, Exception):
         return {
@@ -328,6 +346,7 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
         "upvotes": {"N": "0"},
         "downvotes": {"N": "0"},
         "p_hash": {"S": "0"},
+        "username": {"S": username},
     }
 
     # Update the database
