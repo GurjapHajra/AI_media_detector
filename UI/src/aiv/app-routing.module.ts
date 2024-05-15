@@ -45,6 +45,13 @@ const routes: Routes = [
         (m) => m.PublicSearchModule
       ),
   },
+  {
+    path: 'search',
+    loadChildren: () =>
+      import('./screens/public-search/public-search.module').then(
+        (m) => m.PublicSearchModule
+      ),
+  },
 ];
 
 @NgModule({

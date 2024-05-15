@@ -12,4 +12,14 @@ export class MediaUploaderComponent {
   onDropFiles(files: AssetFile[]): void {
     this.imageDroped.emit([...files]);
   }
+
+  onFileChange(event: any): void {
+    let files: AssetFile[] = [];
+
+    for (const file of event.target.files) {
+      files.push({ file, url: URL.createObjectURL(file) });
+    }
+
+    this.imageDroped.emit([...files]);
+  }
 }
