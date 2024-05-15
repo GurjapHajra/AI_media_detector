@@ -4,6 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { Observable, map, take } from 'rxjs';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-media-finder',
@@ -13,6 +14,7 @@ import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store
 export class MediaFinderComponent {
   protected picUrl: string = '';
   protected filter: string = '';
+  protected loading: boolean = false;
 
   protected searchResult = this.store.select(getListAssets).pipe(
     map((assets) => {
@@ -45,16 +47,28 @@ export class MediaFinderComponent {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
-  ) {}
+  ) { }
 
   protected searched() {
+    this.loading = true;
     this.MediaManagementService.getAssetListFromDb(this.filter)
       .pipe(take(1))
       .subscribe((assets) => {
         this.store.dispatch(
-          fromRemoteAssetStore.addListAssets({ ListAssets: assets })
-        );
-      });
+          fromRemoteAssetStore.addListAssets({ ListAssets: assets }));
+        this.loading = false;
+      },
+        (error) => {
+          this.loading = false;
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Something went wrong!",
+            footer: error,
+            backdrop: false
+          });
+        }
+      );
   }
 
   protected openImage(key: string) {
@@ -70,10 +84,12 @@ export class MediaFinderComponent {
     this.MediaManagementService.getBase64FromAssetName(name)
       .pipe(take(1))
       .subscribe((res) => this.mergeImages(res, name));
+    Swal.fire("Item verifyed");
   }
 
   protected deleteMedia(name: string) {
     this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
+    Swal.fire("Item deleted");
   }
 
   protected mergeImages(url: string, name: string) {

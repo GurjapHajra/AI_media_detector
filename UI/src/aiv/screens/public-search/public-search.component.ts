@@ -4,6 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { Observable, map, of, take } from 'rxjs';
 import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-public-search',
@@ -24,7 +25,7 @@ export class PublicSearchComponent implements OnInit {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (this.searchParams.has('assetid')) {
@@ -51,7 +52,16 @@ export class PublicSearchComponent implements OnInit {
           { name: 'p-hash', value: asset.p_hash },
           { name: 'verified', value: asset.verified },
         ];
-      });
+      },
+        (error) => {
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Something went wrong!",
+            footer: error,
+            backdrop: false
+          });
+        });
   }
 
   protected openImage() {

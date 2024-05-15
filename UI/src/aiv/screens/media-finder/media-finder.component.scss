@@ -51,3 +51,14 @@
     text-transform: uppercase;
   }
 }
+
+.search.loading::after {
+  content: 'Loading...';
+  display: block;
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #cdcdcd;
+  font-size: 1.2rem;
+}
