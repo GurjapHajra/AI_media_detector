@@ -51,7 +51,8 @@ export class LoginComponent {
           title: "Oops...",
           text: "Something went wrong!",
           footer: 'Please check your Username and Password',
-          backdrop: false
+          backdrop: false,
+          background: '#151515',
         });
       });
   }
