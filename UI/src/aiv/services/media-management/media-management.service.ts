@@ -12,6 +12,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
@@ -24,7 +25,7 @@ import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
   providedIn: 'root',
 })
 export class MediaManagementService {
-  constructor(private http: HttpClient, private store: Store) {}
+  constructor(private http: HttpClient, private store: Store, private swalAlertService: SwalAlertService) { }
 
   // result: upload multiple media files
   // intput: requires a list of AssetFile
@@ -87,8 +88,7 @@ export class MediaManagementService {
       switchMap((user) =>
         this.http
           .get(
-            `${environment.url}/db?page=${page ?? 0}&filter=${
-              filter ?? ''
+            `${environment.url}/db?page=${page ?? 0}&filter=${filter ?? ''
             }&username=${user.username}`
           )
           .pipe(
@@ -156,7 +156,7 @@ export class MediaManagementService {
       map((res: any) => ({ url: res['url'] })),
       tap(() => console.log(':::Got asset url')),
       catchError((err) => {
-        console.log(':::Error getting asset url', err);
+        this.swalAlertService.showIconAlert('Error getting asset url', 'Try Again', '', 'error')
         return of({ url: '' });
       })
     );

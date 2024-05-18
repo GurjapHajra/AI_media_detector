@@ -7,14 +7,16 @@ import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store
 import { catchError, map, of, switchMap, take } from 'rxjs';
 import { environment } from '@aiv/environment/environment';
 import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 
 @Injectable()
 export class RemoteAssetStoreEffects {
   constructor(
     private actions$: Actions,
     private store: Store,
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    private swalAlertService: SwalAlertService
+  ) { }
 
   deleteAsset$ = createEffect(() =>
     this.actions$.pipe(
@@ -40,7 +42,7 @@ export class RemoteAssetStoreEffects {
       ),
       map(() => fromRemoteAssetStore.deleteAssetSuccess()),
       catchError((err) => {
-        alert('Error: ' + err.error.message);
+        //alert('Error: ' + err.error.message);
         return of(err);
       })
     )
@@ -51,7 +53,7 @@ export class RemoteAssetStoreEffects {
       this.actions$.pipe(
         ofType(fromRemoteAssetStore.deleteAssetSuccess),
         map(() => {
-          alert('Successfully deleted!');
+          this.swalAlertService.showAlertSimple('Image Deleted');
         })
       ),
     { dispatch: false }

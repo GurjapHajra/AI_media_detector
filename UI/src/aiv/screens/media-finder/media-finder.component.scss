@@ -1,68 +1,75 @@
-:host{
+:host {
   width: 100%;
   height: 90%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  .search {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  button {
-    height: 100%;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .download_button {
-     height: fit-content;
-  }
-  
-  table {
-    width: fit-content;
-  }
-
-  .mdc-data-table__table {
-    margin: 10px;
-    min-width: fit-content;
-  }
-
-  .clickable {
-    cursor: pointer;
-    color: rgb(255, 0, 255);
-  }
-
-  img {
-    width: 500px;
-    height: 500px;
-    object-fit: contain;
-  }
-    /* H1 title styles */
-  h1 {
-    font-size: 32px;
-    font-weight: bold;
-    color: #f9f9f9;
-    margin-bottom: 20px;
-    text-align: center;
-    text-transform: uppercase;
-  }
 }
 
-.search.loading::after {
-  content: 'Loading...';
-  display: block;
-  position: absolute;
-  top: 60%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #cdcdcd;
-  font-size: 1.2rem;
+.search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+button {
+  height: 100%;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.download_button {
+  height: fit-content;
+  margin-top: 20px; /* Ensure download button also moves down */
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.mdc-data-table__table {
+  margin: 10px;
+  min-width: fit-content;
+}
+
+.clickable {
+  cursor: pointer;
+  color: rgb(255, 0, 255);
+}
+
+img {
+  width: 500px;
+  height: 500px;
+  object-fit: contain;
+}
+
+/* H1 title styles */
+h1 {
+  font-size: 32px;
+  font-weight: bold;
+  color: #f9f9f9;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.search.loading {
+  position: relative;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Styles for the loading spinner */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  margin-top: 50px; /* Move the loading spinner down */
 }

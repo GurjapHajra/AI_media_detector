@@ -11,6 +11,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { FormsModule } from '@angular/forms';
 import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-store.module';
 import { remoteAssetStoreEffectsModule } from '@aiv/effects/remote-asset-store-effects/remote-asset-store.module';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [MediaFinderComponent],
@@ -24,7 +25,8 @@ import { remoteAssetStoreEffectsModule } from '@aiv/effects/remote-asset-store-e
     MatInputModule,
     remoteAssetStoreModule,
     remoteAssetStoreEffectsModule,
+    MatProgressSpinnerModule,
   ],
   providers: [MediaManagementService],
 })
-export class MediaFinderModule {}
+export class MediaFinderModule { }

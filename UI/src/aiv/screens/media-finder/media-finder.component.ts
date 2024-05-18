@@ -2,21 +2,24 @@ import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions';
-import { Observable, map, take } from 'rxjs';
+import { Observable, map, take, startWith } from 'rxjs';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import Swal from 'sweetalert2';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 
 @Component({
   selector: 'app-media-finder',
   templateUrl: './media-finder.component.html',
-  styleUrl: './media-finder.component.scss',
+  styleUrls: ['./media-finder.component.scss'],
 })
 export class MediaFinderComponent {
   protected picUrl: string = '';
   protected filter: string = '';
   protected loading: boolean = false;
+  protected viewLoading: { [key: string]: boolean } = {};
+  protected deleteLoading: { [key: string]: boolean } = {};
+  protected verifyLoading: { [key: string]: boolean } = {};
 
-  protected searchResult = this.store.select(getListAssets).pipe(
+  protected searchResult: Observable<{ id: string; name: string; size: number; LastModified: string; }[]> = this.store.select(getListAssets).pipe(
     map((assets) => {
       if (!assets) {
         return [];
@@ -32,7 +35,8 @@ export class MediaFinderComponent {
           LastModified: date,
         };
       });
-    })
+    }),
+    startWith([]) // Ensure the observable emits an empty array initially
   );
 
   displayedColumns: string[] = [
@@ -46,7 +50,8 @@ export class MediaFinderComponent {
 
   constructor(
     private store: Store,
-    private MediaManagementService: MediaManagementService
+    private MediaManagementService: MediaManagementService,
+    private swalAlertService: SwalAlertService
   ) { }
 
   protected searched() {
@@ -60,59 +65,50 @@ export class MediaFinderComponent {
       },
         (error) => {
           this.loading = false;
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Something went wrong!",
-            footer: error,
-            backdrop: false
-          });
+          this.swalAlertService.showIconAlert('Oops...', 'Something went wrong!', error, 'error')
         }
       );
   }
 
   protected openImage(key: string) {
+    this.viewLoading[key] = true;
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
       .subscribe((res) => {
         this.picUrl = res.url;
+        this.viewLoading[key] = false;
+      }, () => {
+        this.viewLoading[key] = false;
       });
   }
 
   protected verify(name: string) {
-    // getBase64FromAssetName Observable does complete
+    this.verifyLoading[name] = true;
     this.MediaManagementService.getBase64FromAssetName(name)
       .pipe(take(1))
-      .subscribe((res) => this.mergeImages(res, name));
-    Swal.fire("Item verifyed");
+      .subscribe((res) => {
+        this.mergeImages(res, name);
+        this.swalAlertService.showAlertSimple('Image Verified');
+        this.verifyLoading[name] = false;
+      }, () => {
+        this.verifyLoading[name] = false;
+      });
   }
 
   protected deleteMedia(name: string) {
+    this.deleteLoading[name] = true;
     this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
-    Swal.fire("Item deleted");
+    // Simulate delete operation with a delay
+    setTimeout(() => {
+      this.deleteLoading[name] = false;
+    }, 2000);
   }
 
   protected mergeImages(url: string, name: string) {
-    // QRCode.toDataURL('flaticon.com/123456789012=jlj;', {
-    //   margin: 1,
-    //   color: {
-    //     dark: '#6A1B9A',
-    //     light: '#69F0AE',
-    //   },
-    // }).then((qrUrl) => {
-    //   this.MediaManagementService.mergeImages(url, this.localImage()).subscribe(
-    //     (res) => {
-    //       this.picUrl = res;
-    //     }
-    //   );
-    // });
-
     this.getAssetId(name)
       .pipe(take(1))
       .subscribe((id) => {
-        // joinLogoWithString Observable does complete
         this.joinLogoWithString(id).subscribe((res) => {
-          // mergeImages Observable does complete
           this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
             this.picUrl = res;
           });
@@ -148,9 +144,10 @@ export class MediaFinderComponent {
   }
 
   protected download() {
-    var a = document.createElement('a'); //Create <a>
-    a.href = this.picUrl; //Image Base64 Goes here
-    a.download = 'image'; //File name Here
-    a.click(); //Downloaded file
+    var a = document.createElement('a');
+    a.href = this.picUrl;
+    a.download = 'image';
+    a.click();
+    this.swalAlertService.showAlertSimple('Image Downloading');
   }
 }

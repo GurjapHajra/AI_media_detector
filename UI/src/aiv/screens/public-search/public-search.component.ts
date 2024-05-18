@@ -4,7 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { Observable, map, of, take } from 'rxjs';
 import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
-import Swal from 'sweetalert2';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 
 @Component({
   selector: 'app-public-search',
@@ -24,7 +24,8 @@ export class PublicSearchComponent implements OnInit {
 
   constructor(
     private store: Store,
-    private MediaManagementService: MediaManagementService
+    private MediaManagementService: MediaManagementService,
+    private swalAlertService: SwalAlertService
   ) { }
 
   ngOnInit() {
@@ -55,13 +56,7 @@ export class PublicSearchComponent implements OnInit {
         ];
       },
         (error) => {
-          Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Something went wrong!",
-            footer: error,
-            backdrop: false
-          });
+          this.swalAlertService.showIconAlert('Oops...', 'Something went wrong!', 'Please check your Asset ID', 'error')
         });
   }
 
