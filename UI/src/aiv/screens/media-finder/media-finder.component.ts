@@ -19,7 +19,9 @@ export class MediaFinderComponent {
   protected deleteLoading: { [key: string]: boolean } = {};
   protected verifyLoading: { [key: string]: boolean } = {};
 
-  protected searchResult: Observable<{ id: string; name: string; size: number; LastModified: string; }[]> = this.store.select(getListAssets).pipe(
+  protected searchResult: Observable<
+    { id: string; name: string; size: number; LastModified: string }[]
+  > = this.store.select(getListAssets).pipe(
     map((assets) => {
       if (!assets) {
         return [];
@@ -52,20 +54,27 @@ export class MediaFinderComponent {
     private store: Store,
     private MediaManagementService: MediaManagementService,
     private swalAlertService: SwalAlertService
-  ) { }
+  ) {}
 
   protected searched() {
     this.loading = true;
     this.MediaManagementService.getAssetListFromDb(this.filter)
       .pipe(take(1))
-      .subscribe((assets) => {
-        this.store.dispatch(
-          fromRemoteAssetStore.addListAssets({ ListAssets: assets }));
-        this.loading = false;
-      },
+      .subscribe(
+        (assets) => {
+          this.store.dispatch(
+            fromRemoteAssetStore.addListAssets({ ListAssets: assets })
+          );
+          this.loading = false;
+        },
         (error) => {
           this.loading = false;
-          this.swalAlertService.showIconAlert('Oops...', 'Something went wrong!', error, 'error')
+          this.swalAlertService.showIconAlert(
+            'Oops...',
+            'Something went wrong!',
+            error,
+            'error'
+          );
         }
       );
   }
@@ -74,25 +83,30 @@ export class MediaFinderComponent {
     this.viewLoading[key] = true;
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
-      .subscribe((res) => {
-        this.picUrl = res.url;
-        this.viewLoading[key] = false;
-      }, () => {
-        this.viewLoading[key] = false;
-      });
+      .subscribe(
+        (res) => {
+          this.picUrl = res.url;
+          this.viewLoading[key] = false;
+        },
+        () => {
+          this.viewLoading[key] = false;
+        }
+      );
   }
 
   protected verify(name: string) {
     this.verifyLoading[name] = true;
     this.MediaManagementService.getBase64FromAssetName(name)
       .pipe(take(1))
-      .subscribe((res) => {
-        this.mergeImages(res, name);
-        this.swalAlertService.showAlertSimple('Image Verified');
-        this.verifyLoading[name] = false;
-      }, () => {
-        this.verifyLoading[name] = false;
-      });
+      .subscribe(
+        (res) => {
+          this.mergeImages(res, name);
+          this.verifyLoading[name] = false;
+        },
+        () => {
+          this.verifyLoading[name] = false;
+        }
+      );
   }
 
   protected deleteMedia(name: string) {
