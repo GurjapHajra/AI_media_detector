@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Actions, ofType, createEffect, concatLatestFrom } from '@ngrx/effects';
-import { Store } from '@ngrx/store';
+import { Store, props } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions'; // Import the remote-asset-store actions
 import {
   getDeletingAsset,
   getListAssets,
 } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { catchError, map, of, switchMap, take } from 'rxjs';
+import { catchError, exhaustMap, map, of, switchMap, take } from 'rxjs';
 import { environment } from '@aiv/environment/environment';
 import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
 
@@ -55,6 +55,34 @@ export class RemoteAssetStoreEffects {
         ofType(fromRemoteAssetStore.deleteAssetSuccess),
         map(() => {
           alert('Successfully deleted!');
+        })
+      ),
+    { dispatch: false }
+  );
+
+  verifyAsset$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(fromRemoteAssetStore.verifyAsset),
+      exhaustMap((props) =>
+        this.http.post(
+          `${environment.url}verify?asset_id=${props.assetId}`,
+          null
+        )
+      ),
+      map(() => fromRemoteAssetStore.verifyAssetSuccess()),
+      catchError((err) => {
+        alert('Error: ' + err.error.message);
+        return of(err);
+      })
+    )
+  );
+
+  verifyAssetSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(fromRemoteAssetStore.verifyAssetSuccess),
+        map(() => {
+          alert('Successfully verified!');
         })
       ),
     { dispatch: false }

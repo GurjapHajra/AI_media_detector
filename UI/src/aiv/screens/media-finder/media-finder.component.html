@@ -40,9 +40,9 @@
     <!-- verify Column -->
     <ng-container matColumnDef="verify">
       <th mat-header-cell *matHeaderCellDef> Verify </th>
-      <td mat-cell *matCellDef="let element" (click)="verify(element.name)">
+      <td mat-cell *matCellDef="let element" (click)="verify(element)">
         <button mat-flat-button color="primary">
-          verify
+          {{ element.verified ? 'view verified' : 'Verify now' }}
         </button>
       </td>
     </ng-container>

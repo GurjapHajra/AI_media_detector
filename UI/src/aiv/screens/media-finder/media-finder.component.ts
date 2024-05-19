@@ -4,6 +4,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { Observable, map, take } from 'rxjs';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
+import { searchResults } from '@aiv/models/SearchResultsModel';
 
 @Component({
   selector: 'app-media-finder',
@@ -14,24 +15,27 @@ export class MediaFinderComponent {
   protected picUrl: string = '';
   protected filter: string = '';
 
-  protected searchResult = this.store.select(getListAssets).pipe(
-    map((assets) => {
-      if (!assets) {
-        return [];
-      }
+  protected searchResult: Observable<searchResults[]> = this.store
+    .select(getListAssets)
+    .pipe(
+      map((assets) => {
+        if (!assets) {
+          return [];
+        }
 
-      return assets.map((item) => {
-        let date = new Date(item.last_modified).toLocaleDateString();
+        return assets.map((item) => {
+          let date = new Date(item.last_modified).toLocaleDateString();
 
-        return {
-          id: item.asset_id,
-          name: item.asset_name,
-          size: Math.round(item.asset_size / 10) / 100,
-          LastModified: date,
-        };
-      });
-    })
-  );
+          return {
+            id: item.asset_id,
+            name: item.asset_name,
+            size: Math.round(item.asset_size / 10) / 100,
+            LastModified: date,
+            verified: item.verified,
+          };
+        });
+      })
+    );
 
   displayedColumns: string[] = [
     'name',
@@ -65,11 +69,29 @@ export class MediaFinderComponent {
       });
   }
 
-  protected verify(name: string) {
+  protected verify(asset: searchResults) {
     // getBase64FromAssetName Observable does complete
-    this.MediaManagementService.getBase64FromAssetName(name)
-      .pipe(take(1))
-      .subscribe((res) => this.mergeImages(res, name));
+
+    if (asset.verified) {
+      this.MediaManagementService.getBase64FromAssetName(asset.name)
+        .pipe(take(1))
+        .subscribe((res) => this.mergeImages(res, asset.name));
+    } else {
+      this.MediaManagementService.checkForAI(asset.name).subscribe((res) => {
+        console.log('is ai: ', res.type.ai_generated);
+        if (res.type.ai_generated < 0.8) {
+          this.store.dispatch(
+            fromRemoteAssetStore.verifyAsset({ assetId: asset.id })
+          );
+          this.MediaManagementService.getBase64FromAssetName(asset.name)
+            .pipe(take(1))
+            .subscribe((res) => this.mergeImages(res, asset.name));
+        } else {
+          alert('AI Generated Image');
+          this.openImage(asset.name);
+        }
+      });
+    }
   }
 
   protected deleteMedia(name: string) {

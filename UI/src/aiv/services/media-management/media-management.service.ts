@@ -10,6 +10,7 @@ import {
   map,
   of,
   switchMap,
+  take,
   tap,
 } from 'rxjs';
 import {
@@ -20,6 +21,11 @@ import {
 import { FlattenToPostUnsignUrlResponse } from '@aiv/models/api-reponse-types';
 import { Store } from '@ngrx/store';
 import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
+import {
+  FlattenToaiApiResponseType,
+  aiApiResponseType,
+} from '@aiv/models/aiAPIResponse';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -253,6 +259,24 @@ export class MediaManagementService {
     }
     // Convert to 32bit unsigned integer in base 36 and pad with "0" to ensure length is 7.
     return (hash >>> 0).toString(36).padStart(7, '0');
+  }
+
+  checkForAI(name: string): Observable<aiApiResponseType> {
+    return this.getAssetPreSignUrl(name).pipe(
+      take(1),
+      exhaustMap((presigned) =>
+        this.http.get('https://api.sightengine.com/1.0/check.json', {
+          params: {
+            url: presigned.url,
+            models: 'genai',
+            api_user: '121362211',
+            api_secret: 'Z6n9zEKravx9kTz9hDD9aeSAwkYi55cE',
+          },
+        })
+      ),
+      map((res) => FlattenToaiApiResponseType(res)),
+      tap((res) => console.log(':::AI response1:', res))
+    );
   }
 
   // result: helper function for cyrb64hash

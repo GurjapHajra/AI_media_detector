@@ -21,3 +21,12 @@ export const deleteAsset = createAction(
 export const deleteAssetSuccess = createAction(
   '[Remote Asset Store] Delete Asset Success'
 );
+
+export const verifyAsset = createAction(
+  '[Remote Asset Store] Verify Asset',
+  props<{ assetId: string }>()
+);
+
+export const verifyAssetSuccess = createAction(
+  '[Remote Asset Store] Verify Asset Success'
+);

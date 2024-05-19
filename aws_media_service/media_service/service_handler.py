@@ -379,6 +379,57 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
+def verfiy_asset_handler(event, context):  # pylint: disable=unused-argument
+    """verify the asset in the database"""
+    if not isinstance(event["queryStringParameters"], dict) or not (
+        "asset_id" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing asset_id or asset_name parameter",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+    else:
+        db_asset = db_item_by_id(event["queryStringParameters"]["asset_id"])
+
+        if isinstance(db_asset, Exception):
+            return {
+                "statusCode": 404,
+                "body": json.dumps(
+                    {
+                        "error": "asset_id not found in database",
+                    }
+                ),
+                "headers": CORS_HEADERS,
+            }
+
+        db_client = boto3.client("dynamodb")
+        res = db_client.update_item(
+            TableName=DB_NAME,
+            Key={
+                "asset_id": {"S": event["queryStringParameters"]["asset_id"]},
+                "asset_name": {"S": db_asset["asset_name"]["S"]},
+            },
+            UpdateExpression="set verified = :v",
+            ExpressionAttributeValues={":v": {"BOOL": True}},
+            ReturnValues="UPDATED_NEW",
+        )
+
+        return {
+            "statusCode": 200,
+            "body": json.dumps(
+                {
+                    "message": f"{res}",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+
 def db_reader():
     """return all the items in the database"""
     db_client = boto3.client("dynamodb")
