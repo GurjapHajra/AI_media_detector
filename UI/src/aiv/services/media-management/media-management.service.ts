@@ -269,8 +269,8 @@ export class MediaManagementService {
           params: {
             url: presigned.url,
             models: 'genai',
-            api_user: '121362211',
-            api_secret: 'Z6n9zEKravx9kTz9hDD9aeSAwkYi55cE',
+            api_user: environment.sightengine_api_user,
+            api_secret: environment.sightegine_api_secret,
           },
         })
       ),
