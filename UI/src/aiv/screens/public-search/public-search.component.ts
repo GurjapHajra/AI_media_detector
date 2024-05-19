@@ -9,11 +9,14 @@ import { SwalAlertService } from '../../services/alert/swal-alert.service';
 @Component({
   selector: 'app-public-search',
   templateUrl: './public-search.component.html',
-  styleUrl: './public-search.component.scss',
+  styleUrls: ['./public-search.component.scss'],
 })
 export class PublicSearchComponent implements OnInit {
   protected picUrl: string = '';
   protected assetid: string = '';
+  protected loading: boolean = false;
+  protected viewLoading: { [key: string]: boolean } = {};
+  protected verifyLoading: { [key: string]: boolean } = {};
 
   protected searchResults: any[] | undefined;
   protected searchResultsObject: GetMediaListResponse | undefined;
@@ -36,55 +39,60 @@ export class PublicSearchComponent implements OnInit {
   }
 
   protected searched() {
+    this.loading = true;
     this.MediaManagementService.getAssetById(this.assetid)
       .pipe(take(1))
-      .subscribe((asset) => {
-        this.searchResultsObject = asset;
-        let date = new Date(asset.last_modified).toLocaleDateString();
+      .subscribe(
+        (asset) => {
+          this.loading = false;
+          this.searchResultsObject = asset;
+          let date = new Date(asset.last_modified).toLocaleDateString();
 
-        this.searchResults = [
-          { name: 'username', value: asset.username },
-          { name: 'id', value: asset.asset_id },
-          { name: 'name', value: asset.asset_name },
-          { name: 'type', value: asset.asset_type },
-          { name: 'size', value: asset.asset_size },
-          { name: 'Last Modified', value: date },
-          { name: 'upvotes', value: asset.upvotes },
-          { name: 'downvotes', value: asset.downvotes },
-          { name: 'p-hash', value: asset.p_hash },
-          { name: 'verified', value: asset.verified },
-        ];
-      },
+          this.searchResults = [
+            { name: 'username', value: asset.username },
+            { name: 'id', value: asset.asset_id },
+            { name: 'name', value: asset.asset_name },
+            { name: 'type', value: asset.asset_type },
+            { name: 'size', value: asset.asset_size },
+            { name: 'Last Modified', value: date },
+            { name: 'upvotes', value: asset.upvotes },
+            { name: 'downvotes', value: asset.downvotes },
+            { name: 'p-hash', value: asset.p_hash },
+            { name: 'verified', value: asset.verified },
+          ];
+        },
         (error) => {
-          this.swalAlertService.showIconAlert('Oops...', 'Something went wrong!', 'Please check your Asset ID', 'error')
-        });
+          this.loading = false;
+          this.swalAlertService.showIconAlert(
+            'Oops...',
+            'Something went wrong!',
+            'Please check your Asset ID',
+            'error'
+          );
+        }
+      );
   }
 
   protected openImage() {
+    this.viewLoading[this.assetid] = true;
     this.MediaManagementService.getAssetPreSignUrl(
       this.searchResultsObject?.asset_name ?? ''
     )
       .pipe(take(1))
-      .subscribe((res) => {
-        this.picUrl = res.url;
-      });
+      .subscribe(
+        (res) => {
+          this.picUrl = res.url;
+          this.viewLoading[this.assetid] = false;
+        },
+        () => {
+          this.viewLoading[this.assetid] = false;
+        }
+      );
   }
 
   protected mergeImages() {
-    // QRCode.toDataURL('flaticon.com/123456789012=jlj;', {
-    //   margin: 1,
-    //   color: {
-    //     dark: '#6A1B9A',
-    //     light: '#69F0AE',
-    //   },
-    // }).then((qrUrl) => {
-    //   this.MediaManagementService.mergeImages(url, this.localImage()).subscribe(
-    //     (res) => {
-    //       this.picUrl = res;
-    //     }
-    //   );
-    // });
     if (this.searchResultsObject) {
+      this.verifyLoading[this.searchResultsObject.asset_id] = true;
       this.MediaManagementService.getAssetPreSignUrl(
         this.searchResultsObject.asset_name
       )
@@ -96,6 +104,10 @@ export class PublicSearchComponent implements OnInit {
               this.MediaManagementService.mergeImages(url.url, res).subscribe(
                 (res) => {
                   this.picUrl = res;
+                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] = false;
+                },
+                () => {
+                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] = false;
                 }
               );
             });
