@@ -1,23 +1,25 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { AssetFile } from 'src/aiv/models/asset-file';
 import * as fromAssetStore from '@aiv/store/assets-store/asset-store.actions';
-import { getAllAssets, getUploadStatus } from '@aiv/store/assets-store/asset-store.selectors';
-import { Observable, Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import {
+  getAllAssets,
+  getUploadStatus,
+} from '@aiv/store/assets-store/asset-store.selectors';
+import { Observable, of } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'aiv-uploader',
   templateUrl: './uploader.component.html',
   styleUrls: ['./uploader.component.scss'],
 })
-export class UploaderComponent implements OnDestroy {
-  isUploading = false;
-  private uploadSubscription: Subscription;
+export class UploaderComponent {
+  protected isUploading: Observable<boolean> = this.store
+    .select(getUploadStatus)
+    .pipe(map((status) => (status === 'uploading' ? true : false)));
 
-  constructor(private store: Store) {
-    this.uploadSubscription = new Subscription();
-  }
+  constructor(private store: Store) {}
 
   assetDropped(assets: AssetFile[]) {
     this.store.dispatch(fromAssetStore.addAsset({ assets }));
@@ -28,16 +30,6 @@ export class UploaderComponent implements OnDestroy {
   }
 
   upload() {
-    this.isUploading = true;
     this.store.dispatch(fromAssetStore.uploadAsset());
-    this.uploadSubscription = this.store.select(getUploadStatus)
-      .pipe(filter(status => status !== 'uploading'))
-      .subscribe(status => {
-        this.isUploading = false;
-      });
-  }
-
-  ngOnDestroy() {
-    this.uploadSubscription.unsubscribe();
   }
 }
