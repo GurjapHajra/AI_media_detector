@@ -115,6 +115,31 @@ export class MediaManagementService {
     );
   }
 
+  // result: gets the presigned url to get the asset
+  // intput: requires the asset name
+  // output: presigned url
+  getAssetPreSignUrlWithUsername(
+    name: string,
+    username: string
+  ): Observable<{ url: string }> {
+    return this.http
+      .get(
+        `${environment.url}get_asset_url?asset_name=${name}&username=${username}`
+      )
+      .pipe(
+        map((res: any) => ({ url: res['url'] })),
+        catchError((err) => {
+          this.swalAlertService.showIconAlert(
+            'Error getting asset url',
+            'Try Again',
+            '',
+            'error'
+          );
+          return of({ url: '' });
+        })
+      );
+  }
+
   // result: gets the asset in base64 from the presigned url
   // intput: requires the asset name
   // output: base64 string of the asset

@@ -29,7 +29,7 @@ export class PublicSearchComponent implements OnInit {
     private store: Store,
     private MediaManagementService: MediaManagementService,
     private swalAlertService: SwalAlertService
-  ) { }
+  ) {}
 
   ngOnInit() {
     if (this.searchParams.has('assetid')) {
@@ -75,8 +75,9 @@ export class PublicSearchComponent implements OnInit {
 
   protected openImage() {
     this.viewLoading[this.assetid] = true;
-    this.MediaManagementService.getAssetPreSignUrl(
-      this.searchResultsObject?.asset_name ?? ''
+    this.MediaManagementService.getAssetPreSignUrlWithUsername(
+      this.searchResultsObject?.asset_name ?? '',
+      this.searchResultsObject?.username ?? ''
     )
       .pipe(take(1))
       .subscribe(
@@ -93,8 +94,9 @@ export class PublicSearchComponent implements OnInit {
   protected mergeImages() {
     if (this.searchResultsObject) {
       this.verifyLoading[this.searchResultsObject.asset_id] = true;
-      this.MediaManagementService.getAssetPreSignUrl(
-        this.searchResultsObject.asset_name
+      this.MediaManagementService.getAssetPreSignUrlWithUsername(
+        this.searchResultsObject.asset_name,
+        this.searchResultsObject?.username ?? ''
       )
         .pipe(take(1))
         .subscribe((url) => {
@@ -104,10 +106,12 @@ export class PublicSearchComponent implements OnInit {
               this.MediaManagementService.mergeImages(url.url, res).subscribe(
                 (res) => {
                   this.picUrl = res;
-                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] = false;
+                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] =
+                    false;
                 },
                 () => {
-                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] = false;
+                  this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] =
+                    false;
                 }
               );
             });
