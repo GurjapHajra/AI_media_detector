@@ -65,7 +65,6 @@ export class MediaManagementService {
               }, []);
               return res;
             }),
-            tap(() => console.log(':::Got all assets')),
             catchError((err) => {
               return of(err);
             })
@@ -98,14 +97,12 @@ export class MediaManagementService {
   // output: presigned url
   getAssetPreSignUrl(name: string): Observable<{ url: string }> {
     return this.store.select(getUser).pipe(
-      tap((user) => console.log(':::Got asset url', user)),
       exhaustMap((user) =>
         this.http.get(
           `${environment.url}get_asset_url?asset_name=${name}&username=${user.username}`
         )
       ),
       map((res: any) => ({ url: res['url'] })),
-      tap(() => console.log(':::Got asset url')),
       catchError((err) => {
         this.swalAlertService.showIconAlert(
           'Error getting asset url',

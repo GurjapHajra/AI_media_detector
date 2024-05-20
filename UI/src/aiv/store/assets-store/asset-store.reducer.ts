@@ -18,8 +18,12 @@ const _reducer = createReducer(
   on(uploadAsset, (state): assetStoreState => {
     return { ...state, uploadStatus: 'uploading' };
   }),
-  on(uploadAssetSuccess, (state): assetStoreState => {
-    return { ...state, uploadStatus: 'completed' };
+  on(uploadAssetSuccess, (state, { name }): assetStoreState => {
+    return {
+      ...state,
+      uploadStatus: state.files.length <= 1 ? 'completed' : 'uploading',
+      files: state.files.filter((file) => file.file.name !== name),
+    };
   }),
   on(uploadAssetFailure, (state): assetStoreState => {
     return { ...state, uploadStatus: 'failed' };

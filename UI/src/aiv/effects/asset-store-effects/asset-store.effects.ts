@@ -7,6 +7,7 @@ import {
   exhaustMap,
   filter,
   map,
+  mergeMap,
   of,
   switchMap,
   take,
@@ -53,15 +54,11 @@ export class AssetStoreEffects {
       concatLatestFrom(() =>
         this.store.select(getUser).pipe(map((user) => user))
       ),
-      switchMap(([asset, user]) =>
-        this.uploadAsset(asset, user.username ?? '').pipe(
-          map(() => AssetStoreActions.reset()),
-          catchError((err) => {
-            console.error('Error uploading assets', err);
-            return of(AssetStoreActions.uploadAssetFailure());
-          })
-        )
-      )
+      mergeMap(([asset, user]) => this.uploadAsset(asset, user.username ?? '')),
+      catchError((err) => {
+        console.error('Error uploading assets', err);
+        return of(AssetStoreActions.uploadAssetFailure());
+      })
     )
   );
 
@@ -71,19 +68,19 @@ export class AssetStoreEffects {
       concatLatestFrom(() =>
         this.store.select(getUser).pipe(map((user) => user))
       ),
-      switchMap(([props, user]) =>
+      mergeMap(([props, user]) =>
         this.http
           .get(
             `${environment.url}get_asset_url?asset_name=${props.name}&username=${user.username}`
           )
           .pipe(map((res: any) => ({ url: res['url'], name: props.name })))
       ),
-      exhaustMap((url) =>
+      mergeMap((url) =>
         this.http
           .get(url.url, { responseType: 'blob' })
           .pipe(map((blob) => ({ blob: blob, name: url.name })))
       ),
-      switchMap((blob) => {
+      mergeMap((blob) => {
         return new Promise<{ res: string; name: string }>((resolve, reject) => {
           const reader = new FileReader();
           reader.onloadend = () =>
@@ -107,17 +104,21 @@ export class AssetStoreEffects {
   updateDBWithName$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AssetStoreActions.updateDBWithName),
-      tap(({ name, id }) => console.log(':::updateing db', name, id)),
       concatLatestFrom(() =>
         this.store.select(getUser).pipe(map((user) => user))
       ),
-      switchMap(([{ id, name }, user]) =>
-        this.http.post(
-          `${environment.url}db?asset_id=${id}&asset_name=${name}&username=${user.username}`,
-          null
-        )
-      ),
-      map(() => AssetStoreActions.uploadAssetSuccess()),
+      mergeMap(([{ id, name }, user]) => {
+        let assetName = name;
+
+        return this.http
+          .post(
+            `${environment.url}db?asset_id=${id}&asset_name=${name}&username=${user.username}`,
+            null
+          )
+          .pipe(
+            map(() => AssetStoreActions.uploadAssetSuccess({ name: assetName }))
+          );
+      }),
       catchError((err) => {
         return of(AssetStoreActions.uploadAssetFailure());
       })
@@ -143,10 +144,7 @@ export class AssetStoreEffects {
   // result: upload a media file
   // intput: requires a AssetFile
   // output: god knows
-  uploadAsset(
-    media: AssetFile,
-    username: string
-  ): Observable<void | TypedAction<string>> {
+  uploadAsset(media: AssetFile, username: string) {
     const formData = new FormData();
 
     return this.getPostUnsignUrl(
@@ -166,11 +164,11 @@ export class AssetStoreEffects {
         formData.append('file', media.file);
         return res;
       }),
-      switchMap((res) => this.http.post(res.url, formData)),
+      mergeMap((res) => this.http.post(res.url, formData)),
       map(() =>
-        this.store.dispatch(
-          AssetStoreActions.generateHashAndUpdateDB({ name: media.file.name })
-        )
+        AssetStoreActions.generateHashAndUpdateDB({
+          name: media.file.name,
+        })
       ),
       catchError((err) => of(AssetStoreActions.uploadAssetFailure()))
     );

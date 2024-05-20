@@ -14,9 +14,14 @@ export const removeAsset = createAction(
 
 export const uploadAsset = createAction('[Asset Store] Upload Asset');
 
-export const uploadAssetSuccess = createAction('[Asset Store] Upload Asset Success');
+export const uploadAssetSuccess = createAction(
+  '[Asset Store] Upload Asset Success',
+  props<{ name: string }>()
+);
 
-export const uploadAssetFailure = createAction('[Asset Store] Upload Asset Failure');
+export const uploadAssetFailure = createAction(
+  '[Asset Store] Upload Asset Failure'
+);
 
 export const generateHashAndUpdateDB = createAction(
   '[Asset Store] Generate Hash from name',
