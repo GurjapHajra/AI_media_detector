@@ -3,7 +3,10 @@ import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions';
 import { Observable, map, take, startWith } from 'rxjs';
-import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
+import {
+  getIsDeleting,
+  getListAssets,
+} from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { SwalAlertService } from '../../services/alert/swal-alert.service';
 
 @Component({
@@ -16,7 +19,8 @@ export class MediaFinderComponent {
   protected filter: string = '';
   protected loading: boolean = false;
   protected viewLoading: { [key: string]: boolean } = {};
-  protected deleteLoading: { [key: string]: boolean } = {};
+  protected deleteLoading: Observable<{ name: string; status: boolean }> =
+    this.store.select(getIsDeleting);
   protected verifyLoading: { [key: string]: boolean } = {};
 
   protected searchResult: Observable<
@@ -54,7 +58,7 @@ export class MediaFinderComponent {
     private store: Store,
     private MediaManagementService: MediaManagementService,
     private swalAlertService: SwalAlertService
-  ) { }
+  ) {}
 
   protected searched() {
     this.loading = true;
@@ -110,14 +114,7 @@ export class MediaFinderComponent {
   }
 
   protected deleteMedia(name: string) {
-    this.deleteLoading[name] = true;
     this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
-
-    // Simulate delete operation with a delay
-    setTimeout(() => {
-      this.deleteLoading[name] = false;
-      this.searched(); // Reload the search results after deletion
-    }, 4000);
   }
 
   protected mergeImages(url: string, name: string) {
@@ -165,5 +162,9 @@ export class MediaFinderComponent {
     a.download = 'image';
     a.click();
     this.swalAlertService.showAlertSimple('Image Downloading');
+  }
+
+  protected clearImage() {
+    this.picUrl = '';
   }
 }

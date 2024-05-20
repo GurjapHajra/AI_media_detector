@@ -73,3 +73,9 @@ h1 {
   height: 100px;
   margin-top: 50px; /* Move the loading spinner down */
 }
+
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}

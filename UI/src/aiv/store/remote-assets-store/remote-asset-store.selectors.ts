@@ -9,3 +9,7 @@ const getRemoteAssetState =
 export const getListAssets = createSelector(getRemoteAssetState, (state) => {
   return state.Listfiles;
 });
+
+export const getIsDeleting = createSelector(getRemoteAssetState, (state) => {
+  return state.is_deleting;
+});
