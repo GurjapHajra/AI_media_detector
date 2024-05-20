@@ -10,6 +10,6 @@ export const getListAssets = createSelector(getRemoteAssetState, (state) => {
   return state.Listfiles;
 });
 
-export const getDeletingAsset = createSelector(getRemoteAssetState, (state) => {
-  return state.deletingAsset;
+export const getIsDeleting = createSelector(getRemoteAssetState, (state) => {
+  return state.is_deleting;
 });

@@ -2,7 +2,9 @@ import { Action, createFeature, createReducer, on } from '@ngrx/store';
 import {
   addListAssets,
   deleteAsset,
+  deleteAssetFailure,
   deleteAssetSuccess,
+  removeAssetFromList,
   reset,
 } from './remote-asset-store.actions';
 import { remoteAssetStoreState, initialState } from './state';
@@ -17,17 +19,20 @@ const _reducer = createReducer(
   on(reset, (state): remoteAssetStoreState => {
     return { ...state, Listfiles: [] };
   }),
-
   on(deleteAsset, (state, { assetName }): remoteAssetStoreState => {
-    return { ...state, deletingAsset: assetName };
+    return { ...state, is_deleting: { name: assetName, status: true } };
   }),
-
   on(deleteAssetSuccess, (state): remoteAssetStoreState => {
-    let newList = state.Listfiles.filter(
-      (item) => item.asset_name !== state.deletingAsset
-    );
-
-    return { ...state, deletingAsset: undefined, Listfiles: newList };
+    return { ...state, is_deleting: { name: '', status: false } };
+  }),
+  on(deleteAssetFailure, (state): remoteAssetStoreState => {
+    return { ...state, is_deleting: { name: '', status: false } };
+  }),
+  on(removeAssetFromList, (state, { assetId }): remoteAssetStoreState => {
+    return {
+      ...state,
+      Listfiles: state.Listfiles.filter((item) => item.asset_id !== assetId),
+    };
   })
 );
 

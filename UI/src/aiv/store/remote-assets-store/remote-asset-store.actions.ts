@@ -19,5 +19,15 @@ export const deleteAsset = createAction(
 );
 
 export const deleteAssetSuccess = createAction(
-  '[Remote Asset Store] Delete Asset Success'
+  '[Remote Asset Store] Delete Asset Success',
+  props<{ assetId: string }>()
+);
+
+export const deleteAssetFailure = createAction(
+  '[Remote Asset Store] Delete Asset Failure'
+);
+
+export const removeAssetFromList = createAction(
+  '[Remote Asset Store] Remove Asset From List',
+  props<{ assetId: string }>()
 );

@@ -104,3 +104,18 @@ h1 {
     text-align: center;
     text-transform: uppercase;
   }
+
+  .search.loading {
+    position: relative;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  
+  /* Styles for the loading spinner */
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    margin-top: 50px; /* Move the loading spinner down */
+  }
