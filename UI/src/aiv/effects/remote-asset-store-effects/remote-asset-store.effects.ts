@@ -53,7 +53,6 @@ export class RemoteAssetStoreEffects {
       this.actions$.pipe(
         ofType(fromRemoteAssetStore.deleteAssetSuccess),
         map(() => {
-          this.swalAlertService.showAlertSimple('Image Deleted');
         })
       ),
     { dispatch: false }

@@ -9,6 +9,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { MatButtonModule } from '@angular/material/button';
 import { AssetStoreEffectsModule } from '@aiv/effects/asset-store-effects/asset-store-effects.module';
 import { AssetStoreModule } from '@aiv/store/assets-store/asset-store.module';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { AssetStoreModule } from '@aiv/store/assets-store/asset-store.module';
     UploaderRoutingModule,
     MatButtonModule,
     AssetStoreModule,
+    MatProgressSpinner,
   ],
   providers: [MediaManagementService],
 })
-export class UploaderModule {}
+export class UploaderModule { }

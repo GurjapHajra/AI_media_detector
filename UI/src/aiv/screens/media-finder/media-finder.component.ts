@@ -54,7 +54,7 @@ export class MediaFinderComponent {
     private store: Store,
     private MediaManagementService: MediaManagementService,
     private swalAlertService: SwalAlertService
-  ) {}
+  ) { }
 
   protected searched() {
     this.loading = true;
@@ -112,10 +112,12 @@ export class MediaFinderComponent {
   protected deleteMedia(name: string) {
     this.deleteLoading[name] = true;
     this.store.dispatch(fromRemoteAssetStore.deleteAsset({ assetName: name }));
+
     // Simulate delete operation with a delay
     setTimeout(() => {
       this.deleteLoading[name] = false;
-    }, 2000);
+      this.searched(); // Reload the search results after deletion
+    }, 4000);
   }
 
   protected mergeImages(url: string, name: string) {

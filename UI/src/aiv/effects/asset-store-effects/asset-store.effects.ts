@@ -29,7 +29,7 @@ export class AssetStoreEffects {
     private store: Store,
     private http: HttpClient,
     private mediaManagementService: MediaManagementService
-  ) {}
+  ) { }
 
   uploadAssets$ = createEffect(() =>
     this.actions$.pipe(
@@ -44,10 +44,10 @@ export class AssetStoreEffects {
       ),
       switchMap(([asset, user]) =>
         this.uploadAsset(asset, user.username ?? '').pipe(
-          map(() => AssetStoreActions.reset()),
+          map(() => AssetStoreActions.uploadAssetSuccess()),
           catchError((err) => {
-            console.log('Error uploading assets');
-            return of(AssetStoreActions.reset());
+            console.log('Error uploading assets', err);
+            return of(AssetStoreActions.uploadAssetFailure());
           })
         )
       )
