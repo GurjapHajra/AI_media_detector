@@ -107,6 +107,7 @@ export class MediaFinderComponent {
       this.MediaManagementService.getBase64FromAssetName(asset.name)
         .pipe(take(1))
         .subscribe((res) => this.mergeImages(res, asset.name));
+      this.verifyLoading[asset.name] = false;
     } else {
       this.MediaManagementService.checkForAI(asset.name).subscribe((res) => {
         console.log('is ai: ', res.type.ai_generated);
@@ -128,6 +129,7 @@ export class MediaFinderComponent {
         } else {
           alert('AI Generated Image');
           this.openImage(asset.name);
+          this.verifyLoading[asset.name] = false;
         }
       });
     }
