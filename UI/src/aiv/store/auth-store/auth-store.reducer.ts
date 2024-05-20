@@ -6,7 +6,6 @@ import { AUTH_STATE_NAME } from './auth-store.selectors';
 const _reducer = createReducer(
   initialState,
   on(signInUser, (state, { user }): UserStoreState => {
-    console.log('::: User signed in', user);
     return {
       ...state,
       userId: user?.userId,
@@ -15,7 +14,6 @@ const _reducer = createReducer(
     };
   }),
   on(signOutUser, (state): UserStoreState => {
-    console.log('::: User signed out');
     return {
       ...state,
       userId: undefined,

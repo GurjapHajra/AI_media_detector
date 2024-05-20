@@ -2,12 +2,22 @@
 <div class="search">
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>Asset Id</mat-label>
-    <input matInput type="text" [(ngModel)]="assetid" (keydown.enter)="searched()" />
+    <input
+      matInput
+      type="text"
+      [(ngModel)]="assetid"
+      (keydown.enter)="searched()"
+    />
   </mat-form-field>
   <button mat-flat-button (click)="searched()">Search</button>
 </div>
 
-<div class="results">
+<!-- Loading Spinner for Search -->
+<div *ngIf="loading" class="loading-spinner">
+  <mat-spinner></mat-spinner>
+</div>
+
+<div class="results" *ngIf="!loading">
   <ng-container *ngIf="searchResults">
     <div class="table">
       <table mat-table [dataSource]="searchResults">
@@ -32,11 +42,21 @@
       </table>
 
       <div class="actions">
-        <button mat-flat-button (click)="openImage()">View</button>
-        <button mat-flat-button (click)="mergeImages()">verify</button>
+        <button mat-flat-button (click)="openImage()">
+          <ng-container *ngIf="!viewLoading[assetid]">View</ng-container>
+          <mat-spinner *ngIf="viewLoading[assetid]" diameter="20"></mat-spinner>
+        </button>
+        <button mat-flat-button (click)="mergeImages()">
+          <ng-container *ngIf="!verifyLoading[searchResultsObject!.asset_id]"
+            >Verify</ng-container
+          >
+          <mat-spinner
+            *ngIf="verifyLoading[searchResultsObject!.asset_id]"
+            diameter="20"
+          ></mat-spinner>
+        </button>
       </div>
     </div>
-
   </ng-container>
 
   <ng-container *ngIf="picUrl">

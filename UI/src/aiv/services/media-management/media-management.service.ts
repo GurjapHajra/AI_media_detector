@@ -13,6 +13,7 @@ import {
   take,
   tap,
 } from 'rxjs';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 import {
   FlattenToGetMediaListResponse,
   GetMediaListResponse,
@@ -30,47 +31,11 @@ import {
   providedIn: 'root',
 })
 export class MediaManagementService {
-  constructor(private http: HttpClient, private store: Store) {}
-
-  // result: upload multiple media files
-  // intput: requires a list of AssetFile
-  // output: god knows
-  uploadMultipleAssets(assets: AssetFile[]): Observable<string> {
-    console.log(':::Uploading all', assets);
-    return from(assets).pipe(switchMap((asset) => this.uploalAsset(asset)));
-  }
-
-  // result: upload a media file
-  // intput: requires a AssetFile
-  // output: god knows
-  uploalAsset(media: AssetFile): Observable<string> {
-    console.log(':::Uploading', media);
-
-    const formData = new FormData();
-
-    return this.getPostUnsignUrl(media.file.name, media.file.type).pipe(
-      map((res) => {
-        formData.append('key', res.fields.key);
-        formData.append('AWSAccessKeyId', res.fields.AWSAccessKeyId);
-        formData.append(
-          'x-amz-security-token',
-          res.fields['x-amz-security-token']
-        );
-        formData.append('policy', res.fields.policy);
-        formData.append('signature', res.fields.signature);
-        formData.append('file', media.file);
-        return res;
-      }),
-      switchMap((res) => this.http.post(res.url, formData)),
-      switchMap(() => this.getAssetPreSignUrl(media.file.name)),
-      switchMap((url) => this.generateHash(url.url)),
-      switchMap((hash) => this.updateDB(media.file.name, hash)),
-      map(() => of('success')),
-      catchError((err) => {
-        return of(err);
-      })
-    );
-  }
+  constructor(
+    private http: HttpClient,
+    private store: Store,
+    private swalAlertService: SwalAlertService
+  ) {}
 
   // result: updates the database with the file name and file id using it's S3 info
   // intput: requires a file name and file id
@@ -106,7 +71,6 @@ export class MediaManagementService {
               }, []);
               return res;
             }),
-            tap(() => console.log(':::Got all assets')),
             catchError((err) => {
               return of(err);
             })
@@ -134,38 +98,52 @@ export class MediaManagementService {
     );
   }
 
-  // result: gets the prsigned url to post assets too
-  // intput: requires the asset name and asset type
-  // output: presigned url, with the fields required to post the asset
-  getPostUnsignUrl(
-    asset_name: string,
-    asset_type: string
-  ): Observable<PostUnsignUrlResponse> {
-    return this.http
-      .get(
-        `${environment.url}get_upload_url?asset_name=${asset_name}&asset_type=${asset_type}`
-      )
-      .pipe(map((res) => FlattenToPostUnsignUrlResponse(res)));
-  }
-
   // result: gets the presigned url to get the asset
   // intput: requires the asset name
   // output: presigned url
   getAssetPreSignUrl(name: string): Observable<{ url: string }> {
     return this.store.select(getUser).pipe(
-      tap((user) => console.log(':::Got asset url', user)),
       exhaustMap((user) =>
         this.http.get(
           `${environment.url}get_asset_url?asset_name=${name}&username=${user.username}`
         )
       ),
       map((res: any) => ({ url: res['url'] })),
-      tap(() => console.log(':::Got asset url')),
       catchError((err) => {
-        console.log(':::Error getting asset url', err);
+        this.swalAlertService.showIconAlert(
+          'Error getting asset url',
+          'Try Again',
+          '',
+          'error'
+        );
         return of({ url: '' });
       })
     );
+  }
+
+  // result: gets the presigned url to get the asset
+  // intput: requires the asset name
+  // output: presigned url
+  getAssetPreSignUrlWithUsername(
+    name: string,
+    username: string
+  ): Observable<{ url: string }> {
+    return this.http
+      .get(
+        `${environment.url}get_asset_url?asset_name=${name}&username=${username}`
+      )
+      .pipe(
+        map((res: any) => ({ url: res['url'] })),
+        catchError((err) => {
+          this.swalAlertService.showIconAlert(
+            'Error getting asset url',
+            'Try Again',
+            '',
+            'error'
+          );
+          return of({ url: '' });
+        })
+      );
   }
 
   // result: gets the asset in base64 from the presigned url

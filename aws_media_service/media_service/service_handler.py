@@ -112,12 +112,13 @@ def get_upload_url_handler(event, context):  # pylint: disable=unused-argument
     if not isinstance(event["queryStringParameters"], dict) or not (
         "asset_name" in event["queryStringParameters"]
         and "asset_type" in event["queryStringParameters"]
+        and "username" in event["queryStringParameters"]
     ):
         return {
             "statusCode": 400,
             "body": json.dumps(
                 {
-                    "error": "missing asset_type or asset_name parameter",
+                    "error": "missing asset_type or asset_name or username parameter",
                 }
             ),
             "headers": CORS_HEADERS,
@@ -125,8 +126,9 @@ def get_upload_url_handler(event, context):  # pylint: disable=unused-argument
 
     asset_name = event["queryStringParameters"]["asset_name"]
     asset_type = event["queryStringParameters"]["asset_type"]
+    username = event["queryStringParameters"]["username"]
 
-    if not isinstance(db_item_by_name(asset_name), Exception):
+    if not isinstance(db_item_by_name(f"{username}/{asset_name}"), Exception):
         return {
             "statusCode": 404,
             "body": json.dumps(

@@ -3,11 +3,15 @@
 
 <button mat-flat-button color="primary varia" (click)="upload()">Upload</button>
 
+<div *ngIf="isUploading | async" class="loading-overlay">
+  <div class="loading-spinner"></div>
+</div>
+
 <div class="grid">
   <div *ngFor="let file of getlocalAsset() | async">
-    <video *ngIf="file.file.type=='video/mp4'" width="720" height="480" controls>
-      <source [src]="file.url" type="video/mp4">
+    <video *ngIf="file.file.type == 'video/mp4'" width="720" height="480" controls>
+      <source [src]="file.url" type="video/mp4" />
     </video>
-    <img [src]='file.url'>
+    <img [src]="file.url" />
   </div>
 </div>

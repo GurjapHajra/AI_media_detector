@@ -10,6 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { FormsModule } from '@angular/forms';
 import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-store.module';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [PublicSearchComponent],
@@ -22,7 +23,8 @@ import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-stor
     MatTableModule,
     MatInputModule,
     remoteAssetStoreModule,
+    MatProgressSpinnerModule,
   ],
   providers: [MediaManagementService],
 })
-export class PublicSearchModule {}
+export class PublicSearchModule { }

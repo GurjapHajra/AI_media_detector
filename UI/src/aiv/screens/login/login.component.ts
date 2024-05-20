@@ -9,6 +9,7 @@ import awsmobile from 'src/aws-exports';
 import { Store } from '@ngrx/store';
 
 import * as fromAuth from '@aiv/store/auth-store/auth-store.actions';
+import { SwalAlertService } from '../../services/alert/swal-alert.service';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,11 @@ export class LoginComponent {
     password: new FormControl(''),
   });
 
-  constructor(private router: Router, private store: Store) {
+  constructor(
+    private router: Router,
+    private store: Store,
+    private swalAlertService: SwalAlertService
+  ) {
     Amplify.configure(awsmobile);
   }
 
@@ -45,7 +50,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       })
       .catch((error) => {
-        console.error(error);
+        this.swalAlertService.showIconAlert('Oops...', 'Something went wrong!', 'Please check your Username and Password', 'error')
       });
   }
 }
