@@ -15,6 +15,7 @@ const _reducer = createReducer(
   on(addListAssets, (state, { ListAssets }): remoteAssetStoreState => {
     return { ...state, Listfiles: ListAssets };
   }),
+
   on(reset, (state): remoteAssetStoreState => {
     return { ...state, Listfiles: [] };
   }),

@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { HttpClient } from '@angular/common/http';
 import * as fromRemoteAssetStore from '@aiv/store/remote-assets-store/remote-asset-store.actions'; // Import the remote-asset-store actions
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { catchError, from, map, of, switchMap, take } from 'rxjs';
+import { catchError, map, of, switchMap, take } from 'rxjs';
 import { environment } from '@aiv/environment/environment';
 import { getUser } from '@aiv/store/auth-store/auth-store.selectors';
 import { SwalAlertService } from '../../services/alert/swal-alert.service';
@@ -86,25 +86,3 @@ export class RemoteAssetStoreEffects {
     { dispatch: false }
   );
 }
-
-/*this.store
-      .select(getListAssets)
-      .pipe(
-        take(1),
-        map((res) => {
-          return res.find((item) => item.asset_name === name)?.asset_id ?? '';
-        }),
-        switchMap((asset_id) => {
-          return this.MediaManagementService.deleteMedia(asset_id);
-        }),
-        map(() => {
-          this.searched();
-          alert('Successfully deleted!');
-        }),
-        catchError((err) => {
-          alert('Error: ' + err.error.message);
-          return err;
-        })
-      )
-      .subscribe();
-*/
