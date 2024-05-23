@@ -53,12 +53,18 @@
     <ng-container matColumnDef="verify">
       <th mat-header-cell *matHeaderCellDef>Verify</th>
       <td mat-cell *matCellDef="let asset">
-        <button mat-flat-button color="primary" (click)="verify(asset)" [disabled]="verifyLoading[asset.name]">
+        <button *ngIf="!asset.verified" mat-flat-button color="primary" (click)="verify(asset)"
+          [disabled]="(verifyLoading[asset.name] || asset.verified)">
           <span *ngIf="verifyLoading[asset.name]">
             <mat-spinner diameter="20"></mat-spinner>
           </span>
-          <span *ngIf="!verifyLoading[asset.name]">{{ asset.verified ? 'view verified' : 'Verify now' }}</span>
+          <span *ngIf="(!verifyLoading[asset.name])">{{ 'verify' }}</span>
         </button>
+        <div *ngIf="(!verifyLoading[asset.name] && asset.verified)" class="verify_icon">
+          <mat-icon>
+            verified
+          </mat-icon>
+        </div>
       </td>
     </ng-container>
 
@@ -89,6 +95,9 @@
     </button>
     <button mat-flat-button class="download_button" (click)="clearImage()">
       Clear
+    </button>
+    <button mat-flat-button class="download_button" (click)="viewVerify()">
+      view verified
     </button>
   </div>
 </ng-container>

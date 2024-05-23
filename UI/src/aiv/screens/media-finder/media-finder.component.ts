@@ -17,6 +17,7 @@ import { searchResults } from '@aiv/models/SearchResultsModel';
 })
 export class MediaFinderComponent {
   protected picUrl: string = '';
+  protected assetName: string = '';
   protected filter: string = '';
   protected loading: boolean = false;
   protected viewLoading: { [key: string]: boolean } = {};
@@ -86,6 +87,7 @@ export class MediaFinderComponent {
   }
 
   protected openImage(key: string) {
+    this.assetName = key;
     this.viewLoading[key] = true;
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
@@ -126,13 +128,27 @@ export class MediaFinderComponent {
                 this.verifyLoading[asset.name] = false;
               }
             );
+          this.store.dispatch(
+            fromRemoteAssetStore.verifySuccess({ assetId: asset.id })
+          );
         } else {
-          alert('AI Generated Image');
+          this.swalAlertService.showIconAlert(
+            'AI Generated Image',
+            'This image is AI generated',
+            '',
+            'error'
+          );
           this.openImage(asset.name);
           this.verifyLoading[asset.name] = false;
         }
       });
     }
+  }
+
+  protected viewVerify() {
+    this.MediaManagementService.getBase64FromAssetName(this.assetName)
+      .pipe(take(1))
+      .subscribe((res) => this.mergeImages(res, this.assetName));
   }
 
   protected deleteMedia(name: string) {
@@ -188,5 +204,6 @@ export class MediaFinderComponent {
 
   protected clearImage() {
     this.picUrl = '';
+    this.assetName = '';
   }
 }

@@ -40,3 +40,8 @@ export const verifyAsset = createAction(
 export const verifyAssetSuccess = createAction(
   '[Remote Asset Store] Verify Asset Success'
 );
+
+export const verifySuccess = createAction(
+  '[Remote Asset Store] Verify Success',
+  props<{ assetId: string }>()
+);

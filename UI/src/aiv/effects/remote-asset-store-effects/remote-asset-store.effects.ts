@@ -108,7 +108,7 @@ export class RemoteAssetStoreEffects {
       this.actions$.pipe(
         ofType(fromRemoteAssetStore.verifyAssetSuccess),
         map(() => {
-          alert('Successfully verified!');
+          this.swalAlertService.showAlertSimple('verified');
         })
       ),
     { dispatch: false }

@@ -6,6 +6,7 @@ import {
   deleteAssetSuccess,
   removeAssetFromList,
   reset,
+  verifySuccess,
 } from './remote-asset-store.actions';
 import { remoteAssetStoreState, initialState } from './state';
 import { ASSET_STATE_NAME } from './remote-asset-store.selectors';
@@ -32,6 +33,17 @@ const _reducer = createReducer(
     return {
       ...state,
       Listfiles: state.Listfiles.filter((item) => item.asset_id !== assetId),
+    };
+  }),
+  on(verifySuccess, (state, { assetId }): remoteAssetStoreState => {
+    return {
+      ...state,
+      Listfiles: state.Listfiles.map((item) => {
+        if (item.asset_id === assetId) {
+          return { ...item, verified: true };
+        }
+        return item;
+      }),
     };
   })
 );

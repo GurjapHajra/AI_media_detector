@@ -409,17 +409,7 @@ def verfiy_asset_handler(event, context):  # pylint: disable=unused-argument
             "headers": CORS_HEADERS,
         }
 
-    db_client = boto3.client("dynamodb")
-    res = db_client.update_item(
-        TableName=DB_NAME,
-        Key={
-            "asset_id": {"S": event["queryStringParameters"]["asset_id"]},
-            "asset_name": {"S": db_asset["asset_name"]["S"]},
-        },
-        UpdateExpression="set verified = :v",
-        ExpressionAttributeValues={":v": {"BOOL": True}},
-        ReturnValues="UPDATED_NEW",
-    )
+    res = verify_asset_in_db(db_asset["asset_id"]["S"], db_asset["asset_name"]["S"])
 
     return {
         "statusCode": 200,
@@ -430,6 +420,21 @@ def verfiy_asset_handler(event, context):  # pylint: disable=unused-argument
         ),
         "headers": CORS_HEADERS,
     }
+
+
+def verify_asset_in_db(asset_id, asset_name):
+    """verify the asset in the database"""
+    db_client = boto3.client("dynamodb")
+    return db_client.update_item(
+        TableName=DB_NAME,
+        Key={
+            "asset_id": {"S": asset_id},
+            "asset_name": {"S": asset_name},
+        },
+        UpdateExpression="set verified = :v",
+        ExpressionAttributeValues={":v": {"BOOL": True}},
+        ReturnValues="UPDATED_NEW",
+    )
 
 
 def db_reader():

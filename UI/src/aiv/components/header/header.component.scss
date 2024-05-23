@@ -1,13 +1,13 @@
 :host {
   width: 100%;
-  height: 5%;
+  height: 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
   
   img {
-    height: 100%;
+    height: 48px;
   }
   
   img:hover {
@@ -30,4 +30,7 @@
     margin: 0;
   }
 
+  .full-height {
+    height: 100%;
+  }
 }
