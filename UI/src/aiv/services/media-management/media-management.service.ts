@@ -238,7 +238,6 @@ export class MediaManagementService {
     // Convert to 32bit unsigned integer in base 36 and pad with "0" to ensure length is 7.
     return (hash >>> 0).toString(36).padStart(7, '0');
   }
-
   checkForAI(name: string): Observable<aiApiResponseType> {
     return this.getAssetPreSignUrl(name).pipe(
       take(1),

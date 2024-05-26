@@ -683,9 +683,23 @@ def get_asset_s3_info(bucket=BUCKET_NAME, object_name=None):
 
 def ai_detector(url: str):
     """Detect the type of asset"""
-    response = requests.get('https://www.google.com/search?q=asdf', timeout=5)
-    print("::::::::::::", response.content)
-    return False
+    response = requests.get(
+        "https://api.sightengine.com/1.0/check.json",
+        params={
+            "url": url,
+            "models": "genai",
+            "api_user": "121362211",
+            "api_secret": "Z6n9zEKravx9kTz9hDD9aeSAwkYi55cE",
+        },
+        timeout=5,
+    )
+
+    res = response.json()["type"]["ai_generated"]
+
+    if res <= 0.7:
+        return True
+    else:
+        return False
 
 
 def db_updater_with_s3():
