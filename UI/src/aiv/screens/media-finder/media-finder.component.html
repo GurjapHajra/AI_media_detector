@@ -96,7 +96,7 @@
     <button mat-flat-button class="download_button" (click)="clearImage()">
       Clear
     </button>
-    <button mat-flat-button class="download_button" (click)="viewVerify()">
+    <button *ngIf="getAssetIsVerified() | async" mat-flat-button class="download_button" (click)="viewVerify()">
       view verified
     </button>
   </div>

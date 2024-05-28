@@ -26,7 +26,13 @@ export class MediaFinderComponent {
   protected verifyLoading: { [key: string]: boolean } = {};
 
   protected searchResult: Observable<
-    { id: string; name: string; size: number; LastModified: string }[]
+    {
+      id: string;
+      name: string;
+      size: number;
+      LastModified: string;
+      verified: boolean;
+    }[]
   > = this.store.select(getListAssets).pipe(
     map((assets) => {
       if (!assets) {
@@ -56,6 +62,17 @@ export class MediaFinderComponent {
     'verify',
     'delete',
   ];
+
+  getAssetIsVerified(): Observable<boolean> {
+    return this.store.select(getListAssets).pipe(
+      map((res) => {
+        return (
+          res.find((item) => item.asset_name === this.assetName)?.verified ??
+          false
+        );
+      })
+    );
+  }
 
   constructor(
     private store: Store,
