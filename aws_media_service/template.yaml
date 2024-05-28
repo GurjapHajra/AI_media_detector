@@ -198,7 +198,7 @@ Resources:
         MyEvent:
           Type: Api
           Properties:
-            Path: /Backend_verify
+            Path: /backendVerify
             Method: post
       Policies:
         - DynamoDBCrudPolicy:

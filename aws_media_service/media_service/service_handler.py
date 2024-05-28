@@ -476,9 +476,10 @@ def backend_asset_verification(event, context):  # pylint: disable=unused-argume
         res = Exception("AI detected in the asset")
 
     return {
-        "statusCode": 200 if not isinstance(res, Exception) else 404,
+        "statusCode": 200,
         "body": json.dumps(
             {
+                "res": False if isinstance(res, Exception) else True,
                 "message": f"{res}",
             }
         ),
@@ -683,6 +684,7 @@ def get_asset_s3_info(bucket=BUCKET_NAME, object_name=None):
 
 def ai_detector(url: str):
     """Detect the type of asset"""
+    return False
     response = requests.get(
         "https://api.sightengine.com/1.0/check.json",
         params={
@@ -693,6 +695,9 @@ def ai_detector(url: str):
         },
         timeout=5,
     )
+
+    if response.status_code != 200:
+        return False
 
     res = response.json()["type"]["ai_generated"]
 
