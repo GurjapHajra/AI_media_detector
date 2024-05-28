@@ -1,0 +1,26 @@
+<form [formGroup]="profileForm" (submit)="handleConfirmSignUp($event)">
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput placeholder="Username" formControlName="username" required />
+    <mat-error>Username is required</mat-error>
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>code</mat-label>
+    <input matInput placeholder="code" formControlName="code" required />
+    <mat-error>Password is required</mat-error>
+  </mat-form-field>
+
+  <button [disabled]="!this.profileForm.valid" mat-flat-button type="submit" color="primary">Confirm</button>
+</form>
+
+
+<form [formGroup]="resendForm" (submit)="handleResendCode($event)">
+  <mat-form-field>
+    <mat-label>Username</mat-label>
+    <input matInput placeholder="Username" formControlName="username" required />
+    <mat-error>Username is required</mat-error>
+  </mat-form-field>
+
+  <button [disabled]="!this.resendForm.valid" mat-flat-button color="primary">Resend Code</button>
+</form>

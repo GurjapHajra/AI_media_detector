@@ -1,14 +1,18 @@
-form {
+:host{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    border-radius: 10px;
-}
-
-mat-form-field {
-    width: 100%;
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    mat-form-field {
+        width: 100%;
+    }
 }

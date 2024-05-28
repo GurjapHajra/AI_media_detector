@@ -52,6 +52,7 @@ const routes: Routes = [
         (m) => m.PublicSearchModule
       ),
   },
+  { path: 'confirmSignUp', loadChildren: () => import('./screens/confirm-sign-up/confirm-sign-up.module').then(m => m.ConfirmSignUpModule) },
 ];
 
 @NgModule({
