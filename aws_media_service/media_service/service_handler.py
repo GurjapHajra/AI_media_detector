@@ -512,7 +512,7 @@ def db_reader():
     return response["Items"]
 
 
-def db_item_by_name_handler(event, context):  # pylint: disable=unused-argument
+def db_item_by_id_handler(event, context):  # pylint: disable=unused-argument
     """returns the asset from the database based on the asset_name"""
 
     if (
@@ -684,7 +684,6 @@ def get_asset_s3_info(bucket=BUCKET_NAME, object_name=None):
 
 def ai_detector(url: str):
     """Detect the type of asset"""
-    return False
     response = requests.get(
         "https://api.sightengine.com/1.0/check.json",
         params={

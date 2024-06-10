@@ -134,7 +134,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: media_service/
-      Handler: service_handler.db_item_by_name_handler
+      Handler: service_handler.db_item_by_id_handler
       Runtime: python3.10
       Architectures:
         - x86_64

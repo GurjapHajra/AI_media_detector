@@ -40,7 +40,7 @@ export class MediaFinderComponent {
       }
 
       return assets.map((item) => {
-        let date = new Date(item.last_modified).toLocaleDateString();
+        let date = new Date(item.last_modified).toLocaleDateString();       
 
         return {
           id: item.asset_id,
