@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { MediaManagementService } from '@aiv/services/media-management/media-management.service';
 import { getListAssets } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
-import { Observable, map, of, take } from 'rxjs';
+import { Observable, map, take } from 'rxjs';
 import { GetMediaListResponse } from '@aiv/models/api-reponse-types';
 import { SwalAlertService } from '../../services/alert/swal-alert.service';
+
+import { ImageProcessingService } from '@aiv/services/image-processing/image-processing.service';
 
 @Component({
   selector: 'app-public-search',
@@ -28,7 +30,8 @@ export class PublicSearchComponent implements OnInit {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService,
-    private swalAlertService: SwalAlertService
+    private swalAlertService: SwalAlertService,
+    private imageProcessingService: ImageProcessingService
   ) {}
 
   ngOnInit() {
@@ -100,7 +103,8 @@ export class PublicSearchComponent implements OnInit {
       )
         .pipe(take(1))
         .subscribe((url) => {
-          this.joinLogoWithString(this.searchResultsObject?.asset_id ?? '')
+          this.imageProcessingService
+            .joinLogoWithString(this.searchResultsObject?.asset_id ?? '')
             .pipe(take(1))
             .subscribe((res) => {
               this.MediaManagementService.mergeImages(url.url, res).subscribe(
@@ -125,25 +129,6 @@ export class PublicSearchComponent implements OnInit {
         return res.find((item) => item.asset_name === name)?.asset_id ?? '';
       })
     );
-  }
-
-  protected joinLogoWithString(hash: string): Observable<string> {
-    let img = new Image();
-    img.src = String.raw`../../../assets/codeLogo.png`;
-
-    return new Observable<string>((observer) => {
-      img.onload = () => {
-        let c = document.createElement('canvas');
-        c.width = img.width;
-        c.height = img.height;
-        let ctx = c.getContext('2d') ?? new CanvasRenderingContext2D();
-        ctx.font = '50px Arial';
-        ctx.drawImage(img, 0, 0);
-        ctx.fillText(hash, 85, c.height - 10);
-        observer.next(c.toDataURL());
-        observer.complete();
-      };
-    });
   }
 
   protected download() {
