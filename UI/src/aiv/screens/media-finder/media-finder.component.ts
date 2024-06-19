@@ -8,6 +8,7 @@ import {
   getListAssets,
 } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { SwalAlertService } from '../../services/alert/swal-alert.service';
+import { searchResults } from '@aiv/models/SearchResultsModel';
 
 @Component({
   selector: 'app-media-finder',
@@ -16,6 +17,7 @@ import { SwalAlertService } from '../../services/alert/swal-alert.service';
 })
 export class MediaFinderComponent {
   protected picUrl: string = '';
+  protected assetName: string = '';
   protected filter: string = '';
   protected loading: boolean = false;
   protected viewLoading: { [key: string]: boolean } = {};
@@ -24,7 +26,13 @@ export class MediaFinderComponent {
   protected verifyLoading: { [key: string]: boolean } = {};
 
   protected searchResult: Observable<
-    { id: string; name: string; size: number; LastModified: string }[]
+    {
+      id: string;
+      name: string;
+      size: number;
+      LastModified: string;
+      verified: boolean;
+    }[]
   > = this.store.select(getListAssets).pipe(
     map((assets) => {
       if (!assets) {
@@ -32,13 +40,14 @@ export class MediaFinderComponent {
       }
 
       return assets.map((item) => {
-        let date = new Date(item.last_modified).toLocaleDateString();
+        let date = new Date(item.last_modified).toLocaleDateString();       
 
         return {
           id: item.asset_id,
           name: item.asset_name,
           size: Math.round(item.asset_size / 10) / 100,
           LastModified: date,
+          verified: item.verified,
         };
       });
     }),
@@ -53,6 +62,17 @@ export class MediaFinderComponent {
     'verify',
     'delete',
   ];
+
+  getAssetIsVerified(): Observable<boolean> {
+    return this.store.select(getListAssets).pipe(
+      map((res) => {
+        return (
+          res.find((item) => item.asset_name === this.assetName)?.verified ??
+          false
+        );
+      })
+    );
+  }
 
   constructor(
     private store: Store,
@@ -84,6 +104,7 @@ export class MediaFinderComponent {
   }
 
   protected openImage(key: string) {
+    this.assetName = key;
     this.viewLoading[key] = true;
     this.MediaManagementService.getAssetPreSignUrl(key)
       .pipe(take(1))
@@ -98,19 +119,53 @@ export class MediaFinderComponent {
       );
   }
 
-  protected verify(name: string) {
-    this.verifyLoading[name] = true;
-    this.MediaManagementService.getBase64FromAssetName(name)
-      .pipe(take(1))
-      .subscribe(
-        (res) => {
-          this.mergeImages(res, name);
-          this.verifyLoading[name] = false;
-        },
-        () => {
-          this.verifyLoading[name] = false;
+  protected verify(asset: searchResults) {
+    // getBase64FromAssetName Observable does complete
+    this.verifyLoading[asset.name] = true;
+    if (asset.verified) {
+      this.MediaManagementService.getBase64FromAssetName(asset.name)
+        .pipe(take(1))
+        .subscribe((res) => this.mergeImages(res, asset.name));
+      this.verifyLoading[asset.name] = false;
+    } else {
+      this.MediaManagementService.checkForAI(asset.name).subscribe((res) => {
+        console.log('is ai: ', res.type.ai_generated);
+        if (res.type.ai_generated < 0.8) {
+          this.store.dispatch(
+            fromRemoteAssetStore.verifyAsset({ assetId: asset.id })
+          );
+          this.MediaManagementService.getBase64FromAssetName(asset.name)
+            .pipe(take(1))
+            .subscribe(
+              (res) => {
+                this.mergeImages(res, asset.name);
+                this.verifyLoading[asset.name] = false;
+              },
+              () => {
+                this.verifyLoading[asset.name] = false;
+              }
+            );
+          this.store.dispatch(
+            fromRemoteAssetStore.verifySuccess({ assetId: asset.id })
+          );
+        } else {
+          this.swalAlertService.showIconAlert(
+            'AI Generated Image',
+            'This image is AI generated',
+            '',
+            'error'
+          );
+          this.openImage(asset.name);
+          this.verifyLoading[asset.name] = false;
         }
-      );
+      });
+    }
+  }
+
+  protected viewVerify() {
+    this.MediaManagementService.getBase64FromAssetName(this.assetName)
+      .pipe(take(1))
+      .subscribe((res) => this.mergeImages(res, this.assetName));
   }
 
   protected deleteMedia(name: string) {
@@ -166,5 +221,6 @@ export class MediaFinderComponent {
 
   protected clearImage() {
     this.picUrl = '';
+    this.assetName = '';
   }
 }

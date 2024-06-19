@@ -1,5 +1,7 @@
 <ng-template [ngIf]="(loggedIn | async)">
-  <img src="../../../assets/logo.png" (click)="GoToHome()" />
+  <div class="full-height">
+    <img src="../../../assets/logo.png" (click)="GoToHome()" />
+  </div>
 
   <button mat-flat-button color="primary" (click)="GoToSeach()">
     <mat-icon>search</mat-icon>
@@ -16,7 +18,9 @@
 </ng-template>
 
 <ng-template [ngIf]="!(loggedIn | async)">
-  <img src="../../../assets/logo.png" (click)="GoToSeach()" />
+  <div class="full-height">
+    <img src="../../../assets/logo.png" (click)="GoToSeach()" />
+  </div>
 
   <div class="header-links">
     <button mat-flat-button color="primary" (click)="signin.emit()">

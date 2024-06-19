@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButton } from '@angular/material/button';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'aiv-sign-up',
@@ -28,7 +29,7 @@ import Swal from 'sweetalert2';
   ],
 })
 export class SignUpFormComponent {
-  constructor() {
+  constructor(private router: Router) {
     Amplify.configure(awsmobile);
   }
 
@@ -69,17 +70,21 @@ export class SignUpFormComponent {
       },
     }).then(
       (result) => {
-        Swal.fire("Sign up successful!");
+        Swal.fire('Sign up successful!');
+        this.goToConfirmSignUp();
       },
       (error) => {
         Swal.fire({
-          icon: "error",
-          title: "Oops...",
-          text: "Error signing up",
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Error signing up',
           footer: error,
-          backdrop: false
+          backdrop: false,
         });
       }
     );
+  }
+  protected goToConfirmSignUp() {
+    this.router.navigate(['/confirmSignUp']);
   }
 }

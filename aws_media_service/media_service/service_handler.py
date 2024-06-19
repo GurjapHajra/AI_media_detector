@@ -7,6 +7,7 @@ import os
 
 import boto3
 from botocore.exceptions import ClientError
+import requests
 
 BUCKET_NAME = "media-service-737855111243-us-east-1"
 DB_NAME = "MediaServiceAssets"
@@ -381,6 +382,126 @@ def db_update_handler(event, context):  # pylint: disable=unused-argument
     }
 
 
+def verfiy_asset_handler(event, context):  # pylint: disable=unused-argument
+    """verify the asset in the database"""
+    if not isinstance(event["queryStringParameters"], dict) or not (
+        "asset_id" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing asset_id or asset_name parameter",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    db_asset = db_item_by_id(event["queryStringParameters"]["asset_id"])
+
+    if isinstance(db_asset, Exception):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "asset_id not found in database",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    res = verify_asset_in_db(db_asset["asset_id"]["S"], db_asset["asset_name"]["S"])
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": f"{res}",
+            }
+        ),
+        "headers": CORS_HEADERS,
+    }
+
+
+def backend_asset_verification(event, context):  # pylint: disable=unused-argument
+    """verify the asset in the database"""
+
+    if not isinstance(event["queryStringParameters"], dict) or not (
+        "asset_id" in event["queryStringParameters"]
+        and "username" in event["queryStringParameters"]
+    ):
+        return {
+            "statusCode": 400,
+            "body": json.dumps(
+                {
+                    "message": "missing asset_id or username parameter",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    asset_id = event["queryStringParameters"]["asset_id"]
+    username = event["queryStringParameters"]["username"]
+
+    db_asset = db_item_by_id(asset_id)
+
+    if isinstance(db_asset, Exception):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "asset_id not found in database",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    asset_name = db_asset["asset_name"]["S"]
+
+    url = get_asset_url(object_name=f"{username}/{asset_name}")
+    if isinstance(url, Exception):
+        return {
+            "statusCode": 404,
+            "body": json.dumps(
+                {
+                    "error": "file_name not found in S3 bucket",
+                }
+            ),
+            "headers": CORS_HEADERS,
+        }
+
+    if ai_detector(url):
+        res = verify_asset_in_db(asset_id, asset_name)
+    else:
+        res = Exception("AI detected in the asset")
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "res": not isinstance(res, Exception),
+                "message": f"{res}",
+            }
+        ),
+        "headers": CORS_HEADERS,
+    }
+
+
+def verify_asset_in_db(asset_id, asset_name):
+    """verify the asset in the database"""
+    db_client = boto3.client("dynamodb")
+    return db_client.update_item(
+        TableName=DB_NAME,
+        Key={
+            "asset_id": {"S": asset_id},
+            "asset_name": {"S": asset_name},
+        },
+        UpdateExpression="set verified = :v",
+        ExpressionAttributeValues={":v": {"BOOL": True}},
+        ReturnValues="UPDATED_NEW",
+    )
+
+
 def db_reader():
     """return all the items in the database"""
     db_client = boto3.client("dynamodb")
@@ -391,7 +512,7 @@ def db_reader():
     return response["Items"]
 
 
-def db_item_by_name_handler(event, context):  # pylint: disable=unused-argument
+def db_item_by_id_handler(event, context):  # pylint: disable=unused-argument
     """returns the asset from the database based on the asset_name"""
 
     if (
@@ -443,7 +564,7 @@ def db_item_by_id(asset_id):
             res_asset = asset
 
     if res_asset is None:
-        return Exception
+        return Exception("asset not found in database")
 
     try:
         # Get all items in the database
@@ -559,6 +680,27 @@ def get_asset_s3_info(bucket=BUCKET_NAME, object_name=None):
         return e
 
     return res
+
+
+def ai_detector(url: str):
+    """Detect the type of asset"""
+    response = requests.get(
+        "https://api.sightengine.com/1.0/check.json",
+        params={
+            "url": url,
+            "models": "genai",
+            "api_user": "121362211",
+            "api_secret": "Z6n9zEKravx9kTz9hDD9aeSAwkYi55cE",
+        },
+        timeout=5,
+    )
+
+    if response.status_code != 200:
+        return False
+
+    res = response.json()["type"]["ai_generated"]
+
+    return res <= 0.7
 
 
 def db_updater_with_s3():

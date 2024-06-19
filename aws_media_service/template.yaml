@@ -134,7 +134,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: media_service/
-      Handler: service_handler.db_item_by_name_handler
+      Handler: service_handler.db_item_by_id_handler
       Runtime: python3.10
       Architectures:
         - x86_64
@@ -161,6 +161,44 @@ Resources:
           Type: Api
           Properties:
             Path: /db
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+        - S3CrudPolicy:
+            BucketName: !Ref MediaServiceS3Bucket
+
+  verifyAssetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.verfiy_asset_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /verify
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MediaServiceDynamoDBTable
+
+  backendAssetVerification:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: media_service/
+      Handler: service_handler.backend_asset_verification
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        MyEvent:
+          Type: Api
+          Properties:
+            Path: /backendVerify
             Method: post
       Policies:
         - DynamoDBCrudPolicy:

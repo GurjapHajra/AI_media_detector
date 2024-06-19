@@ -31,3 +31,17 @@ export const removeAssetFromList = createAction(
   '[Remote Asset Store] Remove Asset From List',
   props<{ assetId: string }>()
 );
+
+export const verifyAsset = createAction(
+  '[Remote Asset Store] Verify Asset',
+  props<{ assetId: string }>()
+);
+
+export const verifyAssetSuccess = createAction(
+  '[Remote Asset Store] Verify Asset Success'
+);
+
+export const verifySuccess = createAction(
+  '[Remote Asset Store] Verify Success',
+  props<{ assetId: string }>()
+);

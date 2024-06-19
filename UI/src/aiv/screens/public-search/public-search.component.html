@@ -2,12 +2,7 @@
 <div class="search">
   <mat-form-field subscriptSizing="dynamic">
     <mat-label>Asset Id</mat-label>
-    <input
-      matInput
-      type="text"
-      [(ngModel)]="assetid"
-      (keydown.enter)="searched()"
-    />
+    <input matInput type="text" [(ngModel)]="assetid" (keydown.enter)="searched()" />
   </mat-form-field>
   <button mat-flat-button (click)="searched()">Search</button>
 </div>
@@ -47,13 +42,8 @@
           <mat-spinner *ngIf="viewLoading[assetid]" diameter="20"></mat-spinner>
         </button>
         <button mat-flat-button (click)="mergeImages()">
-          <ng-container *ngIf="!verifyLoading[searchResultsObject!.asset_id]"
-            >Verify</ng-container
-          >
-          <mat-spinner
-            *ngIf="verifyLoading[searchResultsObject!.asset_id]"
-            diameter="20"
-          ></mat-spinner>
+          <ng-container *ngIf="!verifyLoading[searchResultsObject!.asset_id]">Verify</ng-container>
+          <mat-spinner *ngIf="verifyLoading[searchResultsObject!.asset_id]" diameter="20"></mat-spinner>
         </button>
       </div>
     </div>
