@@ -479,7 +479,7 @@ def backend_asset_verification(event, context):  # pylint: disable=unused-argume
         "statusCode": 200,
         "body": json.dumps(
             {
-                "res": False if isinstance(res, Exception) else True,
+                "res": not isinstance(res, Exception),
                 "message": f"{res}",
             }
         ),
@@ -700,10 +700,7 @@ def ai_detector(url: str):
 
     res = response.json()["type"]["ai_generated"]
 
-    if res <= 0.7:
-        return True
-    else:
-        return False
+    return res <= 0.7
 
 
 def db_updater_with_s3():
