@@ -89,14 +89,21 @@
 
 <ng-container *ngIf="picUrl">
   <img [src]="picUrl" alt="Image" />
+  <div class="scale">
+    Code Scale:
+    <mat-slider min="0" max="4" step="0.1" showTickMarks discrete color="accent">
+      <input matSliderThumb [(ngModel)]="scale">
+    </mat-slider>
+  </div>
   <div class="row">
-    <button mat-flat-button class="download_button" (click)="download()">
+    <button mat-flat-button class="download_button" (click)="download()" color="accent">
       Download
     </button>
-    <button mat-flat-button class="download_button" (click)="clearImage()">
+    <button mat-flat-button class="download_button" (click)="clearImage()" color="accent">
       Clear
     </button>
-    <button *ngIf="getAssetIsVerified() | async" mat-flat-button class="download_button" (click)="viewVerify()">
+    <button *ngIf="getAssetIsVerified() | async" mat-flat-button class="download_button" (click)="viewVerify()"
+      color="accent">
       view verified
     </button>
   </div>

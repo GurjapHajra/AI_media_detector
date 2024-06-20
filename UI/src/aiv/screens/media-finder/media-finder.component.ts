@@ -9,6 +9,7 @@ import {
 } from '@aiv/store/remote-assets-store/remote-asset-store.selectors';
 import { SwalAlertService } from '../../services/alert/swal-alert.service';
 import { searchResults } from '@aiv/models/SearchResultsModel';
+import { ImageProcessingService } from '@aiv/services/image-processing/image-processing.service';
 
 @Component({
   selector: 'app-media-finder',
@@ -24,6 +25,7 @@ export class MediaFinderComponent {
   protected deleteLoading: Observable<{ name: string; status: boolean }> =
     this.store.select(getIsDeleting);
   protected verifyLoading: { [key: string]: boolean } = {};
+  protected scale: number = 0;
 
   protected searchResult: Observable<
     {
@@ -40,7 +42,7 @@ export class MediaFinderComponent {
       }
 
       return assets.map((item) => {
-        let date = new Date(item.last_modified).toLocaleDateString();       
+        let date = new Date(item.last_modified).toLocaleDateString();
 
         return {
           id: item.asset_id,
@@ -77,7 +79,8 @@ export class MediaFinderComponent {
   constructor(
     private store: Store,
     private MediaManagementService: MediaManagementService,
-    private swalAlertService: SwalAlertService
+    private swalAlertService: SwalAlertService,
+    private imageProcessingService: ImageProcessingService
   ) {}
 
   protected searched() {
@@ -176,8 +179,12 @@ export class MediaFinderComponent {
     this.getAssetId(name)
       .pipe(take(1))
       .subscribe((id) => {
-        this.joinLogoWithString(id).subscribe((res) => {
-          this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
+        this.imageProcessingService.joinLogoWithString(id).subscribe((res) => {
+          this.MediaManagementService.mergeImages(
+            url,
+            res,
+            this.scale ?? this.scale
+          ).subscribe((res) => {
             this.picUrl = res;
           });
         });
@@ -192,29 +199,10 @@ export class MediaFinderComponent {
     );
   }
 
-  protected joinLogoWithString(hash: string): Observable<string> {
-    let img = new Image();
-    img.src = String.raw`../../../assets/codeLogo.png`;
-
-    return new Observable<string>((observer) => {
-      img.onload = () => {
-        let c = document.createElement('canvas');
-        c.width = img.width;
-        c.height = img.height;
-        let ctx = c.getContext('2d') ?? new CanvasRenderingContext2D();
-        ctx.font = '50px Arial';
-        ctx.drawImage(img, 0, 0);
-        ctx.fillText(hash, 85, c.height - 10);
-        observer.next(c.toDataURL());
-        observer.complete();
-      };
-    });
-  }
-
   protected download() {
     var a = document.createElement('a');
     a.href = this.picUrl;
-    a.download = 'image';
+    a.download = this.assetName;
     a.click();
     this.swalAlertService.showAlertSimple('Image Downloading');
   }
