@@ -176,9 +176,12 @@ export class MediaManagementService {
   // intput: requires two images
   // output: base64 string of the merged image
   // the Observable does complete
-  mergeImages(image1: string, image2: string): Observable<string> {
+  mergeImages(
+    image1: string,
+    image2: string,
+    scaleValue?: number
+  ): Observable<string> {
     let scale = 1;
-
     const canvas = document.createElement('canvas');
     return new Observable<string>((observer) => {
       if (canvas !== undefined) {
@@ -190,23 +193,28 @@ export class MediaManagementService {
           canvas.width = img1.width;
           canvas.height = img1.height;
           img2.setAttribute('crossorigin', 'anonymous');
-          if (img1.width > 3000) {
-            scale = 1;
-          } else if (img1.width > 799) {
-            scale = 2;
+          if (!scaleValue) {
+            if (img1.width > 3000) {
+              scale = 1;
+            } else if (img1.width > 799) {
+              scale = 0.5;
+            } else {
+              scale = 0.25;
+            }
           } else {
-            scale = 4;
+            scale = scaleValue;
           }
+          console.log(':::', scale);
           img2.src = image2;
         };
         img2.onload = () => {
           ctx?.drawImage(img1, 0, 0);
           ctx?.drawImage(
             img2,
-            img1.width - img2.width / scale - 10,
+            img1.width - img2.width * scale - 10,
             10,
-            img2.width / scale,
-            img2.height / scale
+            img2.width * scale,
+            img2.height * scale
           );
           observer.next(canvas.toDataURL());
           observer.complete();

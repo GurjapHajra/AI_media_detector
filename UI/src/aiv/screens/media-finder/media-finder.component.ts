@@ -25,6 +25,7 @@ export class MediaFinderComponent {
   protected deleteLoading: Observable<{ name: string; status: boolean }> =
     this.store.select(getIsDeleting);
   protected verifyLoading: { [key: string]: boolean } = {};
+  protected scale: number = 0;
 
   protected searchResult: Observable<
     {
@@ -179,7 +180,11 @@ export class MediaFinderComponent {
       .pipe(take(1))
       .subscribe((id) => {
         this.imageProcessingService.joinLogoWithString(id).subscribe((res) => {
-          this.MediaManagementService.mergeImages(url, res).subscribe((res) => {
+          this.MediaManagementService.mergeImages(
+            url,
+            res,
+            this.scale ?? this.scale
+          ).subscribe((res) => {
             this.picUrl = res;
           });
         });
@@ -197,7 +202,7 @@ export class MediaFinderComponent {
   protected download() {
     var a = document.createElement('a');
     a.href = this.picUrl;
-    a.download = 'image';
+    a.download = this.assetName;
     a.click();
     this.swalAlertService.showAlertSimple('Image Downloading');
   }

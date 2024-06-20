@@ -13,6 +13,7 @@ import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-stor
 import { remoteAssetStoreEffectsModule } from '@aiv/effects/remote-asset-store-effects/remote-asset-store.module';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [MediaFinderComponent],
@@ -27,6 +28,7 @@ import { MatIconModule } from '@angular/material/icon';
     remoteAssetStoreModule,
     remoteAssetStoreEffectsModule,
     MatProgressSpinnerModule,
+    MatSliderModule,
     MatIconModule,
   ],
   providers: [MediaManagementService],
