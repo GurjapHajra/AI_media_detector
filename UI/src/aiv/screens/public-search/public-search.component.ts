@@ -20,6 +20,7 @@ export class PublicSearchComponent implements OnInit {
   protected viewLoading: { [key: string]: boolean } = {};
   protected verifyLoading: { [key: string]: boolean } = {};
 
+  protected scale: number = 0;
   protected searchResults: any[] | undefined;
   protected searchResultsObject: GetMediaListResponse | undefined;
 
@@ -60,9 +61,25 @@ export class PublicSearchComponent implements OnInit {
             { name: 'Last Modified', value: date },
             { name: 'upvotes', value: asset.upvotes },
             { name: 'downvotes', value: asset.downvotes },
-            { name: 'p-hash', value: asset.p_hash },
+            //{ name: 'p-hash', value: asset.p_hash },
             { name: 'verified', value: asset.verified },
           ];
+
+          this.viewLoading[this.assetid] = true;
+          this.MediaManagementService.getAssetPreSignUrlWithUsername(
+            this.searchResultsObject?.asset_name ?? '',
+            this.searchResultsObject?.username ?? ''
+          )
+            .pipe(take(1))
+            .subscribe(
+              (res) => {
+                this.picUrl = res.url;
+                this.viewLoading[this.assetid] = false;
+              },
+              () => {
+                this.viewLoading[this.assetid] = false;
+              }
+            );
         },
         (error) => {
           this.loading = false;
@@ -76,23 +93,7 @@ export class PublicSearchComponent implements OnInit {
       );
   }
 
-  protected openImage() {
-    this.viewLoading[this.assetid] = true;
-    this.MediaManagementService.getAssetPreSignUrlWithUsername(
-      this.searchResultsObject?.asset_name ?? '',
-      this.searchResultsObject?.username ?? ''
-    )
-      .pipe(take(1))
-      .subscribe(
-        (res) => {
-          this.picUrl = res.url;
-          this.viewLoading[this.assetid] = false;
-        },
-        () => {
-          this.viewLoading[this.assetid] = false;
-        }
-      );
-  }
+  protected openImage() {}
 
   protected mergeImages() {
     if (this.searchResultsObject) {
@@ -107,7 +108,11 @@ export class PublicSearchComponent implements OnInit {
             .joinLogoWithString(this.searchResultsObject?.asset_id ?? '')
             .pipe(take(1))
             .subscribe((res) => {
-              this.MediaManagementService.mergeImages(url.url, res).subscribe(
+              this.MediaManagementService.mergeImages(
+                url.url,
+                res,
+                this.scale ?? this.scale
+              ).subscribe(
                 (res) => {
                   this.picUrl = res;
                   this.verifyLoading[this.searchResultsObject?.asset_id ?? ''] =

@@ -7,6 +7,25 @@
     align-items: center;
     justify-content: center;
 
+    .column {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .scale {
+      display: inline;
+      font-size: 24px;
+      color: #f9f9f9;
+      margin-bottom: 20px;
+      text-align: center;
+      mat-slider {
+        min-width: 350px;
+      }
+    }
+
     .actions {
       display: flex;
       align-items: center;
@@ -35,7 +54,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
+      flex-direction: row;
       gap: 10px;
     }
 
