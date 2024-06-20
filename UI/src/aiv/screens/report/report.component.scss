@@ -1,0 +1,34 @@
+:host {
+  height: 95vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  /* H1 title styles */
+  h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #f9f9f9;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  
+  mat-form-field {
+    min-width: 100%;
+  }
+  mat-card {
+    width: 50%;
+    margin-bottom: 20px;
+  }
+}
