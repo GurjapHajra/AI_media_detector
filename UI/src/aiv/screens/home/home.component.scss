@@ -7,11 +7,22 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
   }
   
   button {
     height: 300px;
     width: 600px;
     margin: 5px;
+  }
+  .report-container{
+    width: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    .report{
+      height: 50px;
+      width: 50px;
+    }
   }
 }
