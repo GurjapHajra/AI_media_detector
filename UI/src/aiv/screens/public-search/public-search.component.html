@@ -37,22 +37,27 @@
       </table>
 
       <div class="actions">
-        <button mat-flat-button (click)="openImage()">
-          <ng-container *ngIf="!viewLoading[assetid]">View</ng-container>
-          <mat-spinner *ngIf="viewLoading[assetid]" diameter="20"></mat-spinner>
-        </button>
-        <button mat-flat-button (click)="mergeImages()">
-          <ng-container *ngIf="!verifyLoading[searchResultsObject!.asset_id]">Verify</ng-container>
-          <mat-spinner *ngIf="verifyLoading[searchResultsObject!.asset_id]" diameter="20"></mat-spinner>
-        </button>
+
       </div>
     </div>
   </ng-container>
 
   <ng-container *ngIf="picUrl">
-    <div class="imageOutput">
+    <div class="column">
       <img [src]="picUrl" alt="Image" />
-      <button mat-flat-button (click)="download()">Download</button>
+      <div class="scale">
+        Code Scale:
+        <mat-slider min="0" max="4" step="0.1" showTickMarks discrete color="accent">
+          <input matSliderThumb [(ngModel)]="scale">
+        </mat-slider>
+      </div>
+      <div class="imageOutput">
+        <button mat-flat-button (click)="download()">Download</button>
+        <button mat-flat-button (click)="mergeImages()">
+          <ng-container *ngIf="!verifyLoading[searchResultsObject!.asset_id]">Verify</ng-container>
+          <mat-spinner *ngIf="verifyLoading[searchResultsObject!.asset_id]" diameter="20"></mat-spinner>
+        </button>
+      </div>
     </div>
   </ng-container>
 </div>

@@ -11,6 +11,7 @@ import { MediaManagementService } from '@aiv/services/media-management/media-man
 import { FormsModule } from '@angular/forms';
 import { remoteAssetStoreModule } from '@aiv/store/remote-assets-store/auth-store.module';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [PublicSearchComponent],
@@ -23,8 +24,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatTableModule,
     MatInputModule,
     remoteAssetStoreModule,
+    MatSliderModule,
     MatProgressSpinnerModule,
   ],
   providers: [MediaManagementService],
 })
-export class PublicSearchModule { }
+export class PublicSearchModule {}
