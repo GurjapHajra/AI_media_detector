@@ -108,3 +108,13 @@
     </button>
   </div>
 </ng-container>
+
+<!-- next page section -->
+<div class="search_navi" *ngIf="(searchResult | async)?.length">
+  <button mat-flat-button (click)="prevPage()">
+    previous page
+  </button>
+  <button mat-flat-button (click)="nextPage()">
+    next page
+  </button>
+</div>
