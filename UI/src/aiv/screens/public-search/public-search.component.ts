@@ -59,8 +59,8 @@ export class PublicSearchComponent implements OnInit {
             { name: 'type', value: asset.asset_type },
             { name: 'size', value: asset.asset_size },
             { name: 'Last Modified', value: date },
-            { name: 'upvotes', value: asset.upvotes },
-            { name: 'downvotes', value: asset.downvotes },
+            //{ name: 'upvotes', value: asset.upvotes },
+            //{ name: 'downvotes', value: asset.downvotes },
             //{ name: 'p-hash', value: asset.p_hash },
             { name: 'verified', value: asset.verified },
           ];
