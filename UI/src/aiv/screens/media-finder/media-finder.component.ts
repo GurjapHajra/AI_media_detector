@@ -26,6 +26,7 @@ export class MediaFinderComponent {
     this.store.select(getIsDeleting);
   protected verifyLoading: { [key: string]: boolean } = {};
   protected scale: number = 0;
+  protected page: number = 0;
 
   protected searchResult: Observable<
     {
@@ -85,7 +86,7 @@ export class MediaFinderComponent {
 
   protected searched() {
     this.loading = true;
-    this.MediaManagementService.getAssetListFromDb(this.filter)
+    this.MediaManagementService.getAssetListFromDb(this.filter, this.page)
       .pipe(take(1))
       .subscribe(
         (assets) => {
@@ -210,5 +211,16 @@ export class MediaFinderComponent {
   protected clearImage() {
     this.picUrl = '';
     this.assetName = '';
+  }
+
+  protected nextPage() {
+    this.page++;
+    this.searched();
+  }
+  protected prevPage() {
+    if (this.page > 0) {
+      this.page--;
+      this.searched();
+    }
   }
 }
